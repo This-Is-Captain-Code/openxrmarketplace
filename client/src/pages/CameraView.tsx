@@ -7,8 +7,8 @@ import PhotoPreview from '@/components/PhotoPreview';
 import { Loader2 } from 'lucide-react';
 
 const mockLenses: Lens[] = [
-  { id: '22d39571-e721-4687-aae1-67dc235c479b', name: 'Lens 1', groupId: 'b5551368-7881-4a23-a034-a0e757ec85a7' },
-  { id: '49a28a50-9294-475b-bdb5-d0b7395109e2', name: 'Lens 2', groupId: 'b5551368-7881-4a23-a034-a0e757ec85a7' },
+  { id: '22d39571-e721-4687-aae1-67dc235c479b', name: 'Lens 1', groupId: '2a385df2-4591-47df-9594-b273b456c862' },
+  { id: '49a28a50-9294-475b-bdb5-d0b7395109e2', name: 'Lens 2', groupId: '2a385df2-4591-47df-9594-b273b456c862' },
 ];
 
 export default function CameraView() {
