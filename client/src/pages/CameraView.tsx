@@ -83,7 +83,7 @@ export default function CameraView() {
 
       <div className="absolute inset-x-0 top-0 z-30 p-4">
         <div className="flex items-center justify-between">
-          <div className="text-white text-2xl font-semibold" style={{ fontFamily: 'Lexend Deca, sans-serif' }}>
+          <div className="text-white text-3xl" style={{ fontFamily: 'Lexlox, sans-serif' }}>
             o7
           </div>
           <div className="text-white/70 text-xs uppercase tracking-widest">
