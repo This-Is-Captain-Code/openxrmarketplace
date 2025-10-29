@@ -15,7 +15,7 @@ export default function LensCarousel({ lenses, onLensSelect, selectedLensId }: L
   const displayLenses = lenses.slice(0, 5);
 
   return (
-    <div className="w-full flex items-center justify-center gap-4 px-4" data-testid="carousel-lenses">
+    <div className="w-full flex items-center justify-center gap-3 px-4 pb-4" data-testid="carousel-lenses">
       {displayLenses.map((lens, index) => {
         const isSelected = selectedLensId === lens.id;
         const isCenter = index === 2;
@@ -26,15 +26,15 @@ export default function LensCarousel({ lenses, onLensSelect, selectedLensId }: L
             data-testid={`button-lens-${lens.id}`}
             onClick={() => onLensSelect(lens)}
             className={`
-              flex-shrink-0 rounded-full bg-white/90 backdrop-blur-sm
+              flex-shrink-0 rounded-full border-2
               transition-all duration-200
               ${isCenter 
-                ? 'w-16 h-16' 
-                : 'w-12 h-12'
+                ? 'w-14 h-14' 
+                : 'w-11 h-11'
               }
               ${isSelected 
-                ? 'ring-2 ring-white scale-110' 
-                : 'opacity-70 hover:opacity-100'
+                ? 'bg-white border-white scale-105' 
+                : 'bg-white/20 border-white/40 backdrop-blur-sm hover:bg-white/30'
               }
             `}
             aria-label={`Apply ${lens.name} lens`}
@@ -46,8 +46,8 @@ export default function LensCarousel({ lenses, onLensSelect, selectedLensId }: L
                 className="w-full h-full object-cover rounded-full"
               />
             ) : (
-              <div className="w-full h-full rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center">
-                <span className="text-xs font-bold text-white">
+              <div className="w-full h-full rounded-full flex items-center justify-center">
+                <span className={`text-xs font-bold ${isSelected ? 'text-foreground' : 'text-white'}`}>
                   {index + 1}
                 </span>
               </div>
