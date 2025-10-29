@@ -1,20 +1,14 @@
-import { useRef, useState, useEffect } from 'react';
+import { useRef, useState } from 'react';
 import { useCameraKit } from '@/hooks/useCameraKit';
 import CameraControls from '@/components/CameraControls';
 import LensCarousel, { Lens } from '@/components/LensCarousel';
 import PermissionScreen from '@/components/PermissionScreen';
 import PhotoPreview from '@/components/PhotoPreview';
-import SetupGuide from '@/components/SetupGuide';
 import { Loader2 } from 'lucide-react';
-import { SNAP_API_TOKEN, SNAP_GROUP_ID } from '@/lib/config';
 
 const mockLenses: Lens[] = [
-  { id: 'lens_1', name: 'Rainbow', groupId: 'YOUR_GROUP_ID_HERE' },
-  { id: 'lens_2', name: 'Sparkle', groupId: 'YOUR_GROUP_ID_HERE' },
-  { id: 'lens_3', name: 'Vintage', groupId: 'YOUR_GROUP_ID_HERE' },
-  { id: 'lens_4', name: 'Neon', groupId: 'YOUR_GROUP_ID_HERE' },
-  { id: 'lens_5', name: 'Blur', groupId: 'YOUR_GROUP_ID_HERE' },
-  { id: 'lens_6', name: 'Sketch', groupId: 'YOUR_GROUP_ID_HERE' },
+  { id: '22d39571-e721-4687-aae1-67dc235c479b', name: 'Lens 1', groupId: 'b5551368-7881-4a23-a034-a0e757ec85a7' },
+  { id: '49a28a50-9294-475b-bdb5-d0b7395109e2', name: 'Lens 2', groupId: 'b5551368-7881-4a23-a034-a0e757ec85a7' },
 ];
 
 export default function CameraView() {
@@ -22,19 +16,6 @@ export default function CameraView() {
   const containerRef = useRef<HTMLDivElement>(null);
   const [selectedLensId, setSelectedLensId] = useState<string | undefined>();
   const [capturedPhoto, setCapturedPhoto] = useState<string | null>(null);
-  const [showSetup, setShowSetup] = useState(false);
-
-  useEffect(() => {
-    const needsSetup = 
-      SNAP_API_TOKEN === 'YOUR_SNAP_API_TOKEN_HERE' || 
-      SNAP_GROUP_ID === 'YOUR_GROUP_ID_HERE';
-    
-    const hasSeenSetup = localStorage.getItem('o7-setup-dismissed');
-    
-    if (needsSetup && !hasSeenSetup) {
-      setShowSetup(true);
-    }
-  }, []);
 
   const {
     status,
@@ -64,15 +45,6 @@ export default function CameraView() {
   const handleRetake = () => {
     setCapturedPhoto(null);
   };
-
-  const handleDismissSetup = () => {
-    localStorage.setItem('o7-setup-dismissed', 'true');
-    setShowSetup(false);
-  };
-
-  if (showSetup) {
-    return <SetupGuide onDismiss={handleDismissSetup} />;
-  }
 
   if (status === 'permission_needed') {
     return <PermissionScreen onRequestPermission={requestPermission} error={error} />;
