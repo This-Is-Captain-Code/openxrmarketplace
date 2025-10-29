@@ -13,9 +13,9 @@ interface LensCarouselProps {
 
 export default function LensCarousel({ lenses, onLensSelect, selectedLensId }: LensCarouselProps) {
   return (
-    <div className="w-full pb-4" data-testid="carousel-lenses">
+    <div className="w-full pb-8" data-testid="carousel-lenses">
       <div className="overflow-x-auto scrollbar-hide">
-        <div className="flex items-center justify-start gap-3 px-4 min-w-max">
+        <div className="flex items-center justify-start gap-3 px-4 pb-4 min-w-max">
           {lenses.map((lens, index) => {
             const isSelected = selectedLensId === lens.id;
             
