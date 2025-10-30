@@ -1,10 +1,13 @@
 import { useRef, useState } from 'react';
 import { useCameraKit } from '@/hooks/useCameraKit';
+import { usePrivy } from '@privy-io/react-auth';
 import CameraControls from '@/components/CameraControls';
 import LensCarousel, { Lens } from '@/components/LensCarousel';
 import PermissionScreen from '@/components/PermissionScreen';
 import PhotoPreview from '@/components/PhotoPreview';
-import { Loader2 } from 'lucide-react';
+import AuthGuard from '@/components/AuthGuard';
+import { Loader2, LogOut } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 const mockLenses: Lens[] = [
   { id: '40369030925', name: 'Lens 1', groupId: '2a385df2-4591-47df-9594-b273b456c862' },
@@ -21,11 +24,12 @@ const mockLenses: Lens[] = [
   { id: '43296900875', name: 'Lens 12', groupId: '2a385df2-4591-47df-9594-b273b456c862' },
 ];
 
-export default function CameraView() {
+function CameraViewContent() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [selectedLensId, setSelectedLensId] = useState<string | undefined>();
   const [capturedPhoto, setCapturedPhoto] = useState<string | null>(null);
+  const { logout, user } = usePrivy();
 
   const {
     status,
@@ -88,8 +92,19 @@ export default function CameraView() {
           <div className="text-white text-3xl" style={{ fontFamily: 'Lexlox, sans-serif' }}>
             o7
           </div>
-          <div className="text-white/70 text-xs uppercase tracking-widest">
-            {status === 'loading' ? 'Initializing...' : status === 'ready' ? 'Ready' : 'Error'}
+          <div className="flex items-center gap-3">
+            <div className="text-white/70 text-xs uppercase tracking-widest">
+              {status === 'loading' ? 'Initializing...' : status === 'ready' ? 'Ready' : 'Error'}
+            </div>
+            <Button
+              onClick={logout}
+              size="icon"
+              variant="ghost"
+              className="text-white hover:bg-white/10"
+              data-testid="button-logout"
+            >
+              <LogOut className="w-5 h-5" />
+            </Button>
           </div>
         </div>
       </div>
@@ -128,5 +143,13 @@ export default function CameraView() {
         </div>
       )}
     </div>
+  );
+}
+
+export default function CameraView() {
+  return (
+    <AuthGuard>
+      <CameraViewContent />
+    </AuthGuard>
   );
 }
