@@ -17,9 +17,15 @@ function Router() {
 }
 
 function App() {
+  const appId = import.meta.env.VITE_PRIVY_APP_ID;
+  
+  if (!appId) {
+    throw new Error("Missing VITE_PRIVY_APP_ID environment variable");
+  }
+
   return (
     <PrivyProvider
-      appId={import.meta.env.VITE_PRIVY_APP_ID || ""}
+      appId={appId}
       config={{
         appearance: {
           theme: "dark",

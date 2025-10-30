@@ -14,29 +14,42 @@ export default function AuthGuard({ children }: AuthGuardProps) {
   const { toast } = useToast();
 
   useEffect(() => {
-    if (ready && authenticated && user) {
-      fetch("/api/auth/login", {
-        method: "POST",
-        body: JSON.stringify({
-          privyId: user.id,
-          walletAddress: user.wallet?.address,
-          email: user.email?.address,
-          phoneNumber: user.phone?.number,
-        }),
-        headers: {
-          "Content-Type": "application/json",
-        },
-      })
-        .then(res => res.json())
-        .catch((error) => {
-          console.error("Failed to sync user:", error);
-          toast({
-            variant: "destructive",
-            title: "Sync Error",
-            description: "Failed to sync user data",
-          });
+    const syncUser = async () => {
+      if (!ready || !authenticated || !user) return;
+      
+      try {
+        const authToken = await user.getAccessToken();
+        
+        const response = await fetch("/api/auth/login", {
+          method: "POST",
+          body: JSON.stringify({
+            walletAddress: user.wallet?.address,
+            email: user.email?.address,
+            phoneNumber: user.phone?.number,
+          }),
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${authToken}`,
+          },
         });
-    }
+
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({ error: "Unknown error" }));
+          throw new Error(errorData.error || "Failed to sync user");
+        }
+
+        await response.json();
+      } catch (error) {
+        console.error("Failed to sync user:", error);
+        toast({
+          variant: "destructive",
+          title: "Sync Error",
+          description: error instanceof Error ? error.message : "Failed to sync user data",
+        });
+      }
+    };
+
+    syncUser();
   }, [ready, authenticated, user, toast]);
 
   if (!ready) {
