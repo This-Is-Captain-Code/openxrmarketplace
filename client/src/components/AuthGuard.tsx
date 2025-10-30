@@ -10,7 +10,7 @@ interface AuthGuardProps {
 }
 
 export default function AuthGuard({ children }: AuthGuardProps) {
-  const { ready, authenticated, login, user } = usePrivy();
+  const { ready, authenticated, login, user, getAccessToken } = usePrivy();
   const { toast } = useToast();
 
   useEffect(() => {
@@ -18,7 +18,7 @@ export default function AuthGuard({ children }: AuthGuardProps) {
       if (!ready || !authenticated || !user) return;
       
       try {
-        const authToken = await user.getAccessToken();
+        const authToken = await getAccessToken();
         
         const response = await fetch("/api/auth/login", {
           method: "POST",
@@ -50,7 +50,7 @@ export default function AuthGuard({ children }: AuthGuardProps) {
     };
 
     syncUser();
-  }, [ready, authenticated, user, toast]);
+  }, [ready, authenticated, user, getAccessToken, toast]);
 
   if (!ready) {
     return (
