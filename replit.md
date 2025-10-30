@@ -48,6 +48,9 @@ Preferred communication style: Simple, everyday language.
 - JWT token verification via `@privy-io/server-auth`
 - Server-side token validation for protected endpoints
 - User session management
+- AuthGuard component wraps camera interface to enforce authentication
+- Automatic user sync to backend database upon successful login
+- Secure token-based API authentication on all protected routes
 
 **Data Storage Strategy**
 - In-memory storage implementation (`MemStorage`) for development
@@ -66,10 +69,13 @@ Preferred communication style: Simple, everyday language.
 - Real-time canvas rendering for AR effects
 
 **Privy Authentication Service**
-- App ID and App Secret for authentication service
+- App ID: `cmhdsknrh003zjp0chko9z886` (stored in VITE_PRIVY_APP_ID)
+- App Secret stored securely in PRIVY_APP_SECRET environment variable
 - Multiple login methods: email, wallet, Google OAuth
-- Custom branding with accent color configuration
-- Server-side token verification for API security
+- Custom branding with dark theme and #C1FF72 accent color
+- Server-side token verification for API security using PrivyClient
+- API endpoint: POST /api/auth/login for user sync
+- Authentication flow: Login → JWT verification → Database sync → Camera access
 
 **Neon Serverless PostgreSQL**
 - Configured via `@neondatabase/serverless` driver
