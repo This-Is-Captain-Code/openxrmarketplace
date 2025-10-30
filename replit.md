@@ -53,12 +53,20 @@ Preferred communication style: Simple, everyday language.
 - Secure token-based API authentication on all protected routes
 
 **Data Storage Strategy**
-- In-memory storage implementation (`MemStorage`) for development
-- Drizzle ORM configured for PostgreSQL (production-ready schema defined)
+- PostgreSQL database using Replit's built-in Neon serverless database
+- Drizzle ORM for type-safe database queries and schema management
 - User schema with Privy ID, wallet address, email, and phone number fields
-- Database schema using Drizzle Kit migrations
+- Database migrations managed via `npm run db:push` command
+- Connection via `DATABASE_URL` environment variable (automatically configured)
 
-**Rationale for Dual Storage**: The codebase includes both in-memory storage (currently active) and PostgreSQL configuration (ready for production). This allows rapid development without database setup while maintaining a clear migration path to persistent storage.
+**Database Tables**:
+- `users`: Stores authenticated user data with UUID primary keys
+  - id: varchar (UUID, auto-generated)
+  - privyId: text (unique, not null)
+  - walletAddress: text (nullable)
+  - email: text (nullable)
+  - phoneNumber: text (nullable)
+  - createdAt: timestamp (auto-generated)
 
 ### External Dependencies
 
