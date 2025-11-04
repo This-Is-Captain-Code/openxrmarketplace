@@ -1,6 +1,7 @@
 import { useRef, useState } from 'react';
 import { useCameraKit } from '@/hooks/useCameraKit';
 import { usePrivy } from '@privy-io/react-auth';
+import { usePayment } from '@/hooks/usePayment';
 import CameraControls from '@/components/CameraControls';
 import LensCarousel, { Lens } from '@/components/LensCarousel';
 import PermissionScreen from '@/components/PermissionScreen';
@@ -8,6 +9,7 @@ import PhotoPreview from '@/components/PhotoPreview';
 import AuthGuard from '@/components/AuthGuard';
 import { Loader2, LogOut } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { useToast } from '@/hooks/use-toast';
 
 const mockLenses: Lens[] = [
   { id: '40369030925', name: 'Lens 1', groupId: '2a385df2-4591-47df-9594-b273b456c862' },
@@ -30,6 +32,8 @@ function CameraViewContent() {
   const [selectedLensId, setSelectedLensId] = useState<string | undefined>();
   const [capturedPhoto, setCapturedPhoto] = useState<string | null>(null);
   const { logout, user } = usePrivy();
+  const { toast } = useToast();
+  const { processPayment, loading: paymentLoading } = usePayment();
 
   const {
     status,
@@ -39,10 +43,32 @@ function CameraViewContent() {
     capturePhoto
   } = useCameraKit(containerRef, canvasRef);
 
-  const handleLensSelect = (lens: Lens) => {
-    console.log('Applying lens:', lens.name);
-    setSelectedLensId(lens.id);
-    applyLens(lens.id, lens.groupId || null);
+  const handleLensSelect = async (lens: Lens) => {
+    console.log('Selecting lens:', lens.name);
+    
+    try {
+      toast({
+        title: 'Processing payment',
+        description: 'Sending micropayment for lens access...',
+      });
+
+      await processPayment();
+
+      toast({
+        title: 'Payment successful',
+        description: 'Applying lens...',
+      });
+
+      setSelectedLensId(lens.id);
+      applyLens(lens.id, lens.groupId || null);
+    } catch (err: any) {
+      console.error('Payment failed:', err);
+      toast({
+        title: 'Payment failed',
+        description: err.message || 'Unable to process payment. Please try again.',
+        variant: 'destructive',
+      });
+    }
   };
 
   const handleCapture = async () => {
@@ -130,9 +156,18 @@ function CameraViewContent() {
 
           <CameraControls
             onCapture={handleCapture}
-            disabled={status !== 'ready'}
+            disabled={status !== 'ready' || paymentLoading}
           />
         </>
+      )}
+
+      {paymentLoading && (
+        <div className="absolute inset-0 flex items-center justify-center bg-black/50 z-40">
+          <div className="flex flex-col items-center gap-4">
+            <Loader2 className="w-12 h-12 text-white animate-spin" />
+            <p className="text-white text-sm">Processing payment...</p>
+          </div>
+        </div>
       )}
 
       {status === 'error' && error && (
