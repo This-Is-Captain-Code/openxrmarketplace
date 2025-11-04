@@ -32,6 +32,9 @@ function App() {
           accentColor: "#C1FF72",
         },
         loginMethods: ["email", "wallet", "google"],
+        embeddedWallets: {
+          createOnLogin: "all-users",
+        },
       }}
     >
       <QueryClientProvider client={queryClient}>

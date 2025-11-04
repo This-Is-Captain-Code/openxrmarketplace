@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { User, Copy, Check, Wallet } from 'lucide-react';
-import { useWallets } from '@privy-io/react-auth';
+import { usePrivy } from '@privy-io/react-auth';
 import { Button } from './ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from './ui/dialog';
 import { useToast } from '@/hooks/use-toast';
@@ -16,7 +16,7 @@ export default function CameraControls({
 }: CameraControlsProps) {
   const [showWalletDialog, setShowWalletDialog] = useState(false);
   const [copied, setCopied] = useState(false);
-  const { wallets } = useWallets();
+  const { user } = usePrivy();
   const { toast } = useToast();
 
   const handleCapture = () => {
@@ -29,7 +29,7 @@ export default function CameraControls({
   };
 
   const handleCopyAddress = async () => {
-    const address = wallets[0]?.address;
+    const address = user?.wallet?.address;
     if (address) {
       await navigator.clipboard.writeText(address);
       setCopied(true);
@@ -100,14 +100,14 @@ export default function CameraControls({
                   data-testid="text-wallet-address"
                   className="flex-1 p-3 bg-muted rounded-md text-sm font-mono break-all"
                 >
-                  {wallets[0]?.address || 'No wallet connected'}
+                  {user?.wallet?.address || 'No wallet connected'}
                 </code>
                 <Button
                   data-testid="button-copy-address"
                   size="icon"
                   variant="outline"
                   onClick={handleCopyAddress}
-                  disabled={!wallets[0]?.address}
+                  disabled={!user?.wallet?.address}
                 >
                   {copied ? (
                     <Check className="w-4 h-4 text-green-500" />
