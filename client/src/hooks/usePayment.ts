@@ -31,23 +31,12 @@ export function usePayment() {
   const { user, sendTransaction } = usePrivy();
   const { wallets } = useWallets();
 
-  const getPreferredWallet = () => {
+  const ensureCorrectNetwork = async () => {
     if (wallets.length === 0) {
       throw new Error('No wallet connected. Please connect a wallet first.');
     }
 
-    const externalWallet = wallets.find(w => w.walletClientType !== 'privy');
-    if (externalWallet) {
-      console.log('Using external wallet:', externalWallet.walletClientType);
-      return externalWallet;
-    }
-
-    console.log('Using embedded wallet (chain support may be limited)');
-    return wallets[0];
-  };
-
-  const ensureCorrectNetwork = async () => {
-    const activeWallet = getPreferredWallet();
+    const activeWallet = wallets[0];
 
     try {
       await activeWallet.switchChain(PAYMENT_CONFIG.chainId);
@@ -105,7 +94,11 @@ export function usePayment() {
     try {
       await ensureCorrectNetwork();
 
-      const activeWallet = getPreferredWallet();
+      if (wallets.length === 0) {
+        throw new Error('No wallet connected. Please connect a wallet first.');
+      }
+
+      const activeWallet = wallets[0];
       const walletAddress = activeWallet.address;
 
       const data = encodeFunctionData({
