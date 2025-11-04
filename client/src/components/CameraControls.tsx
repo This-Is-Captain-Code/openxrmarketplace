@@ -16,7 +16,8 @@ export default function CameraControls({
 }: CameraControlsProps) {
   const [showWalletDialog, setShowWalletDialog] = useState(false);
   const [copied, setCopied] = useState(false);
-  const { user } = usePrivy();
+  const [creating, setCreating] = useState(false);
+  const { user, createWallet } = usePrivy();
   const { toast } = useToast();
 
   const handleCapture = () => {
@@ -38,6 +39,26 @@ export default function CameraControls({
         description: 'Wallet address copied to clipboard',
       });
       setTimeout(() => setCopied(false), 2000);
+    }
+  };
+
+  const handleCreateWallet = async () => {
+    try {
+      setCreating(true);
+      await createWallet();
+      toast({
+        title: 'Wallet created!',
+        description: 'Your embedded wallet has been created successfully',
+      });
+    } catch (error) {
+      console.error('Failed to create wallet:', error);
+      toast({
+        variant: 'destructive',
+        title: 'Error',
+        description: 'Failed to create wallet. Please try again.',
+      });
+    } finally {
+      setCreating(false);
     }
   };
 
@@ -91,32 +112,47 @@ export default function CameraControls({
           </DialogHeader>
 
           <div className="space-y-4">
-            <div>
-              <label className="text-sm font-medium text-muted-foreground">
-                Wallet Address
-              </label>
-              <div className="mt-2 flex items-center gap-2">
-                <code 
-                  data-testid="text-wallet-address"
-                  className="flex-1 p-3 bg-muted rounded-md text-sm font-mono break-all"
-                >
-                  {user?.wallet?.address || 'No wallet connected'}
-                </code>
+            {!user?.wallet ? (
+              <div className="text-center py-6">
+                <p className="text-sm text-muted-foreground mb-4">
+                  You don't have an embedded wallet yet. Create one to use AR lenses with micropayments.
+                </p>
                 <Button
-                  data-testid="button-copy-address"
-                  size="icon"
-                  variant="outline"
-                  onClick={handleCopyAddress}
-                  disabled={!user?.wallet?.address}
+                  data-testid="button-create-wallet"
+                  onClick={handleCreateWallet}
+                  disabled={creating}
+                  className="w-full"
                 >
-                  {copied ? (
-                    <Check className="w-4 h-4 text-green-500" />
-                  ) : (
-                    <Copy className="w-4 h-4" />
-                  )}
+                  {creating ? 'Creating wallet...' : 'Create Wallet'}
                 </Button>
               </div>
-            </div>
+            ) : (
+              <div>
+                <label className="text-sm font-medium text-muted-foreground">
+                  Wallet Address
+                </label>
+                <div className="mt-2 flex items-center gap-2">
+                  <code 
+                    data-testid="text-wallet-address"
+                    className="flex-1 p-3 bg-muted rounded-md text-sm font-mono break-all"
+                  >
+                    {user.wallet.address}
+                  </code>
+                  <Button
+                    data-testid="button-copy-address"
+                    size="icon"
+                    variant="outline"
+                    onClick={handleCopyAddress}
+                  >
+                    {copied ? (
+                      <Check className="w-4 h-4 text-green-500" />
+                    ) : (
+                      <Copy className="w-4 h-4" />
+                    )}
+                  </Button>
+                </div>
+              </div>
+            )}
 
             <div className="space-y-2 text-sm">
               <h4 className="font-medium">How to fund your wallet:</h4>
