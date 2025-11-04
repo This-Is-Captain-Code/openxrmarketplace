@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { usePrivy } from '@privy-io/react-auth';
+import { usePrivy, useWallets } from '@privy-io/react-auth';
 import { encodeFunctionData } from 'viem';
 import {
   verifyPayment,
@@ -28,28 +28,50 @@ export function usePayment() {
   const [error, setError] = useState<string | null>(null);
   const [verifyResult, setVerifyResult] = useState<VerifyResponse | null>(null);
   const [settleResult, setSettleResult] = useState<SettleResponse | null>(null);
-  const { user, sendTransaction, getEthereumProvider } = usePrivy();
+  const { user, sendTransaction } = usePrivy();
+  const { wallets } = useWallets();
 
-  const ensureCorrectNetwork = async () => {
-    const provider = await getEthereumProvider();
-    if (!provider) {
-      throw new Error('No Ethereum provider available');
+  const getPreferredWallet = () => {
+    if (wallets.length === 0) {
+      throw new Error('No wallet connected. Please connect a wallet first.');
     }
 
-    try {
-      const chainIdHex = await provider.request({ method: 'eth_chainId' }) as string;
-      const currentChainId = parseInt(chainIdHex, 16);
+    const externalWallet = wallets.find(w => w.walletClientType !== 'privy');
+    if (externalWallet) {
+      console.log('Using external wallet:', externalWallet.walletClientType);
+      return externalWallet;
+    }
 
-      if (currentChainId !== PAYMENT_CONFIG.chainId) {
-        console.log(`Switching from chain ${currentChainId} to Fluent Testnet (${PAYMENT_CONFIG.chainId})`);
-        
-        try {
-          await provider.request({
-            method: 'wallet_switchEthereumChain',
-            params: [{ chainId: `0x${PAYMENT_CONFIG.chainId.toString(16)}` }],
-          });
-        } catch (switchError: any) {
-          if (switchError.code === 4902) {
+    console.log('Using embedded wallet (chain support may be limited)');
+    return wallets[0];
+  };
+
+  const ensureCorrectNetwork = async () => {
+    const activeWallet = getPreferredWallet();
+
+    try {
+      await activeWallet.switchChain(PAYMENT_CONFIG.chainId);
+      console.log(`Successfully switched to Fluent Testnet (${PAYMENT_CONFIG.chainId})`);
+    } catch (err: any) {
+      console.error('Network switch error:', err);
+      
+      if (activeWallet.walletClientType === 'privy') {
+        throw new Error('Unable to switch to Fluent Testnet. Embedded wallets may have limited chain support.');
+      }
+      
+      const provider = await activeWallet.getEthereumProvider().catch(() => null);
+      if (!provider) {
+        throw new Error('Please switch to Fluent Testnet manually in your wallet');
+      }
+
+      try {
+        await provider.request({
+          method: 'wallet_switchEthereumChain',
+          params: [{ chainId: `0x${PAYMENT_CONFIG.chainId.toString(16)}` }],
+        });
+      } catch (switchError: any) {
+        if (switchError.code === 4902) {
+          try {
             await provider.request({
               method: 'wallet_addEthereumChain',
               params: [{
@@ -64,14 +86,13 @@ export function usePayment() {
                 blockExplorerUrls: ['https://blockscout.dev.thefluent.xyz'],
               }],
             });
-          } else {
-            throw switchError;
+          } catch (addError: any) {
+            throw new Error('Failed to add Fluent Testnet to your wallet. Please add it manually.');
           }
+        } else {
+          throw new Error('Failed to switch network. Please switch to Fluent Testnet manually in your wallet.');
         }
       }
-    } catch (err: any) {
-      console.error('Network switch error:', err);
-      throw new Error('Please switch to Fluent Testnet in your wallet');
     }
   };
 
@@ -82,13 +103,10 @@ export function usePayment() {
     setSettleResult(null);
 
     try {
-      if (!user?.wallet) {
-        throw new Error('No wallet connected');
-      }
-
       await ensureCorrectNetwork();
 
-      const walletAddress = user.wallet.address;
+      const activeWallet = getPreferredWallet();
+      const walletAddress = activeWallet.address;
 
       const data = encodeFunctionData({
         abi: ERC20_ABI,
@@ -99,16 +117,33 @@ export function usePayment() {
         ],
       });
 
-      const txRequest = {
-        to: PAYMENT_CONFIG.fluidTokenAddress as `0x${string}`,
-        data,
-        chainId: PAYMENT_CONFIG.chainId,
-      };
+      console.log('Sending transaction from wallet:', activeWallet.walletClientType);
 
-      console.log('Sending transaction...', txRequest);
+      let txHash: string;
 
-      const txResponse = await sendTransaction(txRequest);
-      const txHash = typeof txResponse === 'string' ? txResponse : txResponse.hash;
+      if (activeWallet.walletClientType === 'privy') {
+        const txRequest = {
+          to: PAYMENT_CONFIG.fluidTokenAddress as `0x${string}`,
+          data,
+          chainId: PAYMENT_CONFIG.chainId,
+        };
+        
+        const txResponse = await sendTransaction(txRequest);
+        txHash = typeof txResponse === 'string' ? txResponse : txResponse.hash;
+      } else {
+        const provider = await activeWallet.getEthereumProvider();
+        
+        const txResponse = await provider.request({
+          method: 'eth_sendTransaction',
+          params: [{
+            from: walletAddress,
+            to: PAYMENT_CONFIG.fluidTokenAddress,
+            data,
+          }],
+        }) as string;
+        
+        txHash = txResponse;
+      }
 
       console.log('Transaction hash:', txHash);
 
