@@ -193,9 +193,9 @@ export default function CameraControls({
                   <div className="text-2xl font-bold" data-testid="text-fluid-balance">
                     {loadingBalance ? (
                       <span className="text-muted-foreground">Loading...</span>
-                    ) : balance !== null && balance !== 'Error' ? (
+                    ) : balance !== null && balance !== 'Error' && !isNaN(parseFloat(balance)) ? (
                       <span>{parseFloat(balance).toFixed(2)} FLUID</span>
-                    ) : balance === 'Error' ? (
+                    ) : balance === 'Error' || (balance !== null && isNaN(parseFloat(balance))) ? (
                       <span className="text-destructive">Error loading balance</span>
                     ) : (
                       <span className="text-muted-foreground">--</span>
