@@ -5,7 +5,7 @@ import { Button } from './ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from './ui/dialog';
 import { useToast } from '@/hooks/use-toast';
 import { createPublicClient, http, formatUnits } from 'viem';
-import { FLUENT_TESTNET } from '@/lib/paymentService';
+import { FLUENT_TESTNET, PAYMENT_CONFIG } from '@/lib/paymentService';
 
 interface CameraControlsProps {
   onCapture: () => void;
@@ -78,7 +78,7 @@ export default function CameraControls({
       });
 
       const balance = await publicClient.readContract({
-        address: '0xd8ac240b2a5ec5b866d9e2f5e1d42e2fcb753d0',
+        address: PAYMENT_CONFIG.fluidTokenAddress as `0x${string}`,
         abi: [
           {
             constant: true,
