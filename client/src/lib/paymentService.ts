@@ -30,7 +30,7 @@ export const PAYMENT_CONFIG = {
   recipientAddress: '0xb448e18d272291503fb8f3150247e2b4bc817729',
   fluidTokenAddress: '0xd8acBC0d60acCCeeF70D9b84ac47153b3895D3d0',
   rpcUrl: 'https://rpc.testnet.fluent.xyz/',
-  lensPaymentAmount: '1000000000000000000', // 1 FLUID token in wei
+  lensPaymentAmount: '10000000000000000', // 0.01 FLUID token in wei
   scheme: 'evm-erc20' as const,
 };
 
