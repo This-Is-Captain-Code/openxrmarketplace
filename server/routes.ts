@@ -110,7 +110,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: "Wallet address is required" });
       }
 
-      const rpcUrl = 'https://rpc.dev.thefluent.xyz/';
+      const rpcUrl = 'https://rpc.testnet.fluent.xyz/';
       const tokenAddress = '0xd8acBC0d60acCCeeF70D9b84ac47153b3895D3d0';
       
       const callData = `0x70a08231${walletAddress.slice(2).padStart(64, '0')}`;

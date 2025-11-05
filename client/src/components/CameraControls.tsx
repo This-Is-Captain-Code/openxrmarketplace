@@ -71,7 +71,7 @@ export default function CameraControls({
     setLoadingBalance(true);
     try {
       const tokenAddress = '0xd8acBC0d60acCCeeF70D9b84ac47153b3895D3d0';
-      const rpcUrl = 'https://rpc.dev.thefluent.xyz/';
+      const rpcUrl = 'https://rpc.testnet.fluent.xyz/';
       
       const callData = `0x70a08231${walletAddress.slice(2).padStart(64, '0')}`;
       

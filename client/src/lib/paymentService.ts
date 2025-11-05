@@ -12,14 +12,14 @@ export const FLUENT_TESTNET: Chain = {
   },
   rpcUrls: {
     default: {
-      http: ['https://rpc.dev.thefluent.xyz/'],
+      http: ['https://rpc.testnet.fluent.xyz/'],
     },
     public: {
-      http: ['https://rpc.dev.thefluent.xyz/'],
+      http: ['https://rpc.testnet.fluent.xyz/'],
     },
   },
   blockExplorers: {
-    default: { name: 'Fluent Explorer', url: 'https://blockscout.dev.thefluent.xyz/' },
+    default: { name: 'Fluent Explorer', url: 'https://testnet.fluentscan.xyz/' },
   },
   testnet: true,
 };
@@ -29,7 +29,7 @@ export const PAYMENT_CONFIG = {
   chainId: 20994,
   recipientAddress: '0xb448e18d272291503fb8f3150247e2b4bc817729',
   fluidTokenAddress: '0xd8acBC0d60acCCeeF70D9b84ac47153b3895D3d0',
-  rpcUrl: 'https://rpc.dev.thefluent.xyz/',
+  rpcUrl: 'https://rpc.testnet.fluent.xyz/',
   lensPaymentAmount: '1000000000000000000', // 1 FLUID token in wei
   scheme: 'evm-erc20' as const,
 };
