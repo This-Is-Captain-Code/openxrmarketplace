@@ -4,8 +4,6 @@ import { usePrivy } from '@privy-io/react-auth';
 import { Button } from './ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from './ui/dialog';
 import { useToast } from '@/hooks/use-toast';
-import { createPublicClient, http, formatUnits } from 'viem';
-import { FLUENT_TESTNET, PAYMENT_CONFIG } from '@/lib/paymentService';
 
 interface CameraControlsProps {
   onCapture: () => void;
@@ -72,28 +70,20 @@ export default function CameraControls({
 
     setLoadingBalance(true);
     try {
-      const publicClient = createPublicClient({
-        chain: FLUENT_TESTNET,
-        transport: http(),
+      const response = await fetch('/api/wallet/balance', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ walletAddress }),
       });
 
-      const balance = await publicClient.readContract({
-        address: PAYMENT_CONFIG.fluidTokenAddress as `0x${string}`,
-        abi: [
-          {
-            constant: true,
-            inputs: [{ name: '_owner', type: 'address' }],
-            name: 'balanceOf',
-            outputs: [{ name: 'balance', type: 'uint256' }],
-            type: 'function',
-          },
-        ],
-        functionName: 'balanceOf',
-        args: [walletAddress as `0x${string}`],
-      });
+      if (!response.ok) {
+        throw new Error('Failed to fetch balance');
+      }
 
-      const formattedBalance = formatUnits(balance as bigint, 18);
-      setBalance(formattedBalance);
+      const data = await response.json();
+      setBalance(data.balance);
     } catch (error) {
       console.error('Failed to fetch balance:', error);
       setBalance('Error');

@@ -102,6 +102,59 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.post("/api/wallet/balance", async (req, res) => {
+    try {
+      const { walletAddress } = req.body;
+      
+      if (!walletAddress) {
+        return res.status(400).json({ error: "Wallet address is required" });
+      }
+
+      const rpcUrl = 'https://rpc.dev.thefluent.xyz/';
+      const tokenAddress = '0xd8acBC0d60acCCeeF70D9b84ac47153b3895D3d0';
+      
+      const callData = `0x70a08231${walletAddress.slice(2).padStart(64, '0')}`;
+      
+      const response = await fetch(rpcUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          jsonrpc: '2.0',
+          method: 'eth_call',
+          params: [
+            {
+              to: tokenAddress,
+              data: callData,
+            },
+            'latest'
+          ],
+          id: 1,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`RPC request failed: ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      
+      if (data.error) {
+        throw new Error(data.error.message || 'RPC error');
+      }
+
+      const balanceHex = data.result;
+      const balanceWei = BigInt(balanceHex);
+      const balanceEther = Number(balanceWei) / 1e18;
+
+      return res.json({ balance: balanceEther.toString() });
+    } catch (error) {
+      console.error("Balance fetch error:", error);
+      return res.status(500).json({ error: "Failed to fetch balance" });
+    }
+  });
+
   const httpServer = createServer(app);
 
   return httpServer;
