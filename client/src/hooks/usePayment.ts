@@ -116,6 +116,7 @@ export function usePayment() {
 
       if (activeWallet.walletClientType === 'privy') {
         const txRequest = {
+          from: walletAddress as `0x${string}`,
           to: PAYMENT_CONFIG.fluidTokenAddress as `0x${string}`,
           data,
           chainId: PAYMENT_CONFIG.chainId,
