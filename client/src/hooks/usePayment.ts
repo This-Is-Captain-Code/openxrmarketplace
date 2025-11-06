@@ -1,14 +1,6 @@
 import { useState } from 'react';
 import { usePrivy, useWallets } from '@privy-io/react-auth';
-import { 
-  encodeFunctionData, 
-  createWalletClient, 
-  custom,
-  serializeTransaction,
-  parseTransaction,
-  type TransactionSerializable
-} from 'viem';
-import { FLUENT_TESTNET } from '@/lib/paymentService';
+import { ethers } from 'ethers';
 import {
   verifyPayment,
   settlePayment,
@@ -112,49 +104,38 @@ export function usePayment() {
       console.log('Creating transaction for signing (no gas required from user)...');
 
       // Get the ethereum provider from the wallet
-      const provider = await activeWallet.getEthereumProvider();
-
-      // Create a wallet client using viem
-      const walletClient = createWalletClient({
-        account: walletAddress as `0x${string}`,
-        chain: FLUENT_TESTNET,
-        transport: custom(provider),
-      });
-
-      // Get the current nonce
-      const nonceHex = await provider.request({
-        method: 'eth_getTransactionCount',
-        params: [walletAddress, 'latest'],
-      }) as string;
+      const ethereumProvider = await activeWallet.getEthereumProvider();
       
-      const nonce = parseInt(nonceHex, 16);
+      // Create an ethers provider and signer from Privy wallet
+      const provider = new ethers.BrowserProvider(ethereumProvider);
+      const signer = await provider.getSigner();
 
-      // Encode the ERC20 transfer function call
-      const data = encodeFunctionData({
-        abi: ERC20_ABI,
-        functionName: 'transfer',
-        args: [
-          PAYMENT_CONFIG.recipientAddress as `0x${string}`,
-          BigInt(PAYMENT_CONFIG.lensPaymentAmount),
-        ],
-      });
+      // Create ERC20 contract interface for encoding the transfer
+      const erc20Interface = new ethers.Interface([
+        'function transfer(address to, uint256 amount) returns (bool)'
+      ]);
+
+      // Encode the transfer function call
+      const data = erc20Interface.encodeFunctionData('transfer', [
+        PAYMENT_CONFIG.recipientAddress,
+        PAYMENT_CONFIG.lensPaymentAmount,
+      ]);
 
       // Create the transaction object WITHOUT gas parameters
       // The x402 facilitator will add gas when broadcasting
-      const transaction: TransactionSerializable = {
-        to: PAYMENT_CONFIG.fluidTokenAddress as `0x${string}`,
+      const transaction = {
+        to: PAYMENT_CONFIG.fluidTokenAddress,
         data,
-        value: BigInt(0),
-        nonce,
+        value: 0,
         chainId: PAYMENT_CONFIG.chainId,
       };
 
       console.log('Requesting user signature (no gas fee - facilitator pays)...');
       
-      // Sign the transaction using viem's signTransaction
+      // Sign the transaction using ethers
       let signedTransaction: string;
       try {
-        signedTransaction = await walletClient.signTransaction(transaction);
+        signedTransaction = await signer.signTransaction(transaction);
         console.log('Transaction signed successfully');
       } catch (signError: any) {
         console.error('Signing error:', signError);
