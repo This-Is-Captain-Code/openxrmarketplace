@@ -1,0 +1,113 @@
+GET
+https://auth.privy.io/api/v1/token_price?chainId=20994&tokenSymbol=FLUID
+[HTTP/2 404  903ms]
+
+	
+GET
+	https://auth.privy.io/api/v1/token_price?chainId=20994&tokenSymbol=FLUID
+Status
+404
+VersionHTTP/2
+Transferred1.19 kB (33 B size)
+Referrer Policystrict-origin-when-cross-origin
+DNS ResolutionSystem
+
+	
+access-control-allow-credentials
+	true
+access-control-allow-origin
+	https://oseven.xyz
+cache-control
+	no-cache, no-store
+cf-cache-status
+	DYNAMIC
+cf-ray
+	99a102ae3c430ec2-EZE
+content-length
+	33
+content-type
+	application/json; charset=utf-8
+date
+	Thu, 06 Nov 2025 02:02:45 GMT
+etag
+	"fqns0kt0ilx"
+referrer-policy
+	strict-origin-when-cross-origin
+server
+	cloudflare
+set-cookie
+	__cf_bm=UbHFNl3LB5P4VHoEEBAnb2gP.KI5B_MmfdfAxiy7QfM-1762394565-1.0.1.1-8JuLUt_XQf2kTHLBre4GPSNqcetaCFpAggqMVpslDWaPGzznvUocTPbCw8kND5JBRqY4Mji5yO0iBp7TN0W0nuP0KASjRs.nloCFbU_SVaQ; path=/; expires=Thu, 06-Nov-25 02:32:45 GMT; domain=.privy.io; HttpOnly; Secure; SameSite=None
+set-cookie
+	_cfuvid=GwK1xgeIj6IjAaeLPx6RNA6Q0JHl_ZUCx.HXy2fynrM-1762394565131-0.0.1.1-604800000; path=/; domain=.privy.io; HttpOnly; Secure; SameSite=None
+strict-transport-security
+	max-age=63072000
+vary
+	Origin
+x-content-type-options
+	nosniff
+X-Firefox-Spdy
+	h2
+x-matched-path
+	/api/v1/token_price
+x-ratelimit-limit
+	100
+x-ratelimit-remaining
+	99
+x-ratelimit-reset
+	1762394570
+x-upstash-latency
+	5
+x-vercel-cache
+	BYPASS
+x-vercel-id
+	gru1::iad1::l6v94-1762394564879-1ba40e891420
+	
+Accept
+	*/*
+Accept-Encoding
+	gzip, deflate, br, zstd
+Accept-Language
+	en-US,en;q=0.5
+authorization
+	Bearer eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6IkhueWNNLWdhdlp0U2xvSkNYLUlER2x3aGx0NTlpZHFzT2V0cmdIT2xmVDgifQ.eyJhaWQiOiJjbWhkc2tucmgwMDN6anAwY2hrbzl6ODg2IiwiYXR0IjoicGF0Iiwic2lkIjoiY21obTNrYWVzMDF5Nmp1MGM1c3ZxaDl4NyIsImlzcyI6InByaXZ5LmlvIiwiaWF0IjoxNzYyMzk0Mzc1LCJhdWQiOiJodHRwczovL2F1dGgucHJpdnkuaW8iLCJzdWIiOiJkaWQ6cHJpdnk6Y21oa3QwcmkyMDAwZGk1MGR6YTRtcGd3MSIsImV4cCI6MTc2MjM5Nzk3NX0.kU-yY9WP7ldjXfuIlkTgNGypmB5bfGbPpkRPEZUaf_bC4UZAomZz2RF52gg_Yy1RF2vEG8wbKniz3cIAiaGjwg
+Connection
+	keep-alive
+Cookie
+	cf_clearance=kuWRNxI1HtYebMWwFO80DnBarRvOzfJbAgkUrX0EOOk-1762394377-1.2.1.1-85gmFOg4L3uBzpRmK9fSJPmcK6dWLobq4vIG0KP.RqdJAXZ38PLT94oicuBeRHoN40kD7pE0Ln8OvQBGLaNr8GzphxAhXK5YWnCAKTWer8qYoM729C3VE5PiWI5lRTtM0a0DAs6IUtlvBPdW7yUDc4LSHLjUz9SynR7XmcRvMJdDcXQtaApYG0FhgREpekHD80Kxj.3ywzRp.EtlFpdluwQ8klVPlsu0sX3bhr_izFM; __cf_bm=6X4GfU.p_JD6b6glA0OYT7e.U1cY.FayReGSM8VA6r0-1762394375-1.0.1.1-gyUzfL1mkMLogU46JwjceHJl5YxZUFFcpGDIZ4aT0DC5XnZCR2TtCoo0ojuHhZQaLaJ9inEFC7451_O_WagpYwEjTPn1gxug.X4mrDbegII; _cfuvid=d21CZKzYlxCtdyC83GE4XZSCHT4lwSm3jL4qzIwgvKM-1762394375044-0.0.1.1-604800000
+Host
+	auth.privy.io
+Origin
+	https://oseven.xyz
+Priority
+	u=4
+privy-app-id
+	cmhdsknrh003zjp0chko9z886
+privy-ca-id
+	3ada02ac-5b10-4b11-9081-f661a9cec320
+privy-client
+	react-auth:3.4.1
+Referer
+	https://oseven.xyz/
+Sec-Fetch-Dest
+	empty
+Sec-Fetch-Mode
+	cors
+Sec-Fetch-Site
+	cross-site
+TE
+	trailers
+User-Agent
+	Mozilla/5.0 (iPhone; CPU iPhone OS 14_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.0.3 Mobile/15E148 Safari/604.1
+Cookie warnings 2
+Unable to fetch token price for chain with id 20994 index-D1EKrIW-.js:440:77249
+    getUsdTokenPrice https://oseven.xyz/assets/index-D1EKrIW-.js:440
+    getUsdTokenPrice https://oseven.xyz/assets/index-D1EKrIW-.js:671
+    <anonymous> https://oseven.xyz/assets/index-D1EKrIW-.js:421
+    <anonymous> https://oseven.xyz/assets/index-D1EKrIW-.js:421
+    k6 https://oseven.xyz/assets/index-D1EKrIW-.js:45
+    I0 https://oseven.xyz/assets/index-D1EKrIW-.js:45
+    ude https://oseven.xyz/assets/index-D1EKrIW-.js:45
+    C https://oseven.xyz/assets/index-D1EKrIW-.js:30
+    R https://oseven.xyz/assets/index-D1EKrIW-.js:30
+
+​
