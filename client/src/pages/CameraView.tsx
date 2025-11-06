@@ -1,13 +1,13 @@
-import { useRef, useState } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import { useCameraKit } from '@/hooks/useCameraKit';
-import { usePrivy } from '@privy-io/react-auth';
+import { usePrivy, useWallets } from '@privy-io/react-auth';
 import { usePayment } from '@/hooks/usePayment';
 import CameraControls from '@/components/CameraControls';
 import LensCarousel, { Lens } from '@/components/LensCarousel';
 import PermissionScreen from '@/components/PermissionScreen';
 import PhotoPreview from '@/components/PhotoPreview';
 import AuthGuard from '@/components/AuthGuard';
-import { Loader2, LogOut } from 'lucide-react';
+import { Loader2, LogOut, Wallet } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 
@@ -32,8 +32,9 @@ function CameraViewContent() {
   const [selectedLensId, setSelectedLensId] = useState<string | undefined>();
   const [capturedPhoto, setCapturedPhoto] = useState<string | null>(null);
   const { logout, user } = usePrivy();
+  const { wallets } = useWallets();
   const { toast } = useToast();
-  const { processPayment, loading: paymentLoading } = usePayment();
+  const { processPayment, loading: paymentLoading, remainingAuthorizations, updateRemainingCount } = usePayment();
 
   const {
     status,
@@ -43,14 +44,29 @@ function CameraViewContent() {
     capturePhoto
   } = useCameraKit(containerRef, canvasRef);
 
+  // Initialize remaining count when wallet connects
+  useEffect(() => {
+    if (wallets.length > 0) {
+      const walletAddress = wallets[0].address;
+      updateRemainingCount(walletAddress);
+    }
+  }, [wallets, updateRemainingCount]);
+
   const handleLensSelect = async (lens: Lens) => {
     console.log('Selecting lens:', lens.name);
     
     try {
-      toast({
-        title: 'Processing payment',
-        description: 'Sending micropayment for lens access...',
-      });
+      if (remainingAuthorizations === 0) {
+        toast({
+          title: 'Pre-authorize lens payments',
+          description: 'Sign once to unlock 10 lenses...',
+        });
+      } else {
+        toast({
+          title: 'Processing payment',
+          description: `Using prepaid authorization (${remainingAuthorizations} remaining)...`,
+        });
+      }
 
       await processPayment();
 
@@ -122,6 +138,14 @@ function CameraViewContent() {
             <div className="text-white/70 text-xs uppercase tracking-widest">
               {status === 'loading' ? 'Initializing...' : status === 'ready' ? 'Ready' : 'Error'}
             </div>
+            {remainingAuthorizations > 0 && (
+              <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#C1FF72]/20 border border-[#C1FF72]/30 backdrop-blur-sm">
+                <Wallet className="w-3.5 h-3.5 text-[#C1FF72]" />
+                <span className="text-[#C1FF72] text-xs font-medium">
+                  {remainingAuthorizations}
+                </span>
+              </div>
+            )}
             <Button
               onClick={logout}
               size="icon"
