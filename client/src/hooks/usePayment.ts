@@ -139,18 +139,17 @@ export function usePayment() {
         ],
       });
 
-      // Create the transaction object
+      // Create the transaction object WITHOUT gas parameters
+      // The x402 facilitator will add gas when broadcasting
       const transaction: TransactionSerializable = {
         to: PAYMENT_CONFIG.fluidTokenAddress as `0x${string}`,
         data,
         value: BigInt(0),
         nonce,
         chainId: PAYMENT_CONFIG.chainId,
-        gas: BigInt(100000),
-        gasPrice: BigInt(1000000000), // 1 gwei
       };
 
-      console.log('Requesting user signature (facilitator will pay gas)...');
+      console.log('Requesting user signature (no gas fee - facilitator pays)...');
       
       // Sign the transaction using viem's signTransaction
       let signedTransaction: string;
