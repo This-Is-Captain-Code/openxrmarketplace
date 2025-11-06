@@ -169,12 +169,16 @@ export function usePayment() {
 
       // Parse signature into v, r, s components
       const sig = ethers.Signature.from(signature);
+      
+      console.log('Raw signature:', signature);
+      console.log('Parsed signature - v:', sig.v, 'r:', sig.r, 's:', sig.s);
+      
       const authorization = {
         from: walletAddress,
         to: PAYMENT_CONFIG.recipientAddress,
         value: PAYMENT_CONFIG.lensPaymentAmount,
-        validAfter: validAfter,
-        validBefore: validBefore,
+        validAfter: validAfter.toString(),
+        validBefore: validBefore.toString(),
         nonce: randomNonce,
         v: sig.v,
         r: sig.r,
@@ -182,6 +186,7 @@ export function usePayment() {
       };
 
       console.log('Authorization object:', JSON.stringify(authorization, null, 2));
+      console.log('Authorization JSON string:', JSON.stringify(authorization));
 
       const paymentDetails: PaymentDetails = {
         networkId: PAYMENT_CONFIG.networkId,
