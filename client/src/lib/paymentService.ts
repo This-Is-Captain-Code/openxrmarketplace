@@ -125,20 +125,29 @@ export async function verifyPayment(
 }
 
 export async function settlePayment(
-  paymentPayload: string,
+  paymentPayload: string | object,
   paymentDetails: PaymentDetails,
   transactionId?: string
 ): Promise<SettleResponse> {
+  // Parse the payload if it's a JSON string (for gasless, it's already an object)
+  const parsedPayload = typeof paymentPayload === 'string' 
+    ? (paymentDetails.scheme === 'evm-erc20-gasless' ? JSON.parse(paymentPayload) : paymentPayload)
+    : paymentPayload;
+
+  const requestBody = {
+    paymentPayload: parsedPayload,
+    paymentDetails,
+    transactionId,
+  };
+
+  console.log('x402 settle request body:', JSON.stringify(requestBody, null, 2));
+
   const response = await fetch(`${API_BASE_URL}/api/settle`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({
-      paymentPayload,
-      paymentDetails,
-      transactionId,
-    }),
+    body: JSON.stringify(requestBody),
   });
 
   if (!response.ok) {

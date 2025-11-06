@@ -197,7 +197,7 @@ export function usePayment() {
       // Send EIP-3009 authorization to x402 facilitator for settlement
       console.log('Settling gasless payment (facilitator broadcasts and pays all gas)...');
       const settleRes = await settlePayment(
-        JSON.stringify(authorization),
+        authorization,
         paymentDetails
       );
       setSettleResult(settleRes);
