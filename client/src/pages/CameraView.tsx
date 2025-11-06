@@ -146,7 +146,7 @@ function CameraViewContent() {
 
       {status === 'ready' && (
         <>
-          <div className="absolute bottom-20 left-0 right-0 z-30">
+          <div className="absolute bottom-24 left-0 right-0 z-30">
             <LensCarousel
               lenses={mockLenses}
               onLensSelect={handleLensSelect}
@@ -171,7 +171,7 @@ function CameraViewContent() {
       )}
 
       {status === 'error' && error && (
-        <div className="absolute bottom-28 left-0 right-0 z-30 px-6">
+        <div className="absolute bottom-32 left-0 right-0 z-30 px-6">
           <div className="bg-destructive/90 backdrop-blur-lg text-destructive-foreground p-4 rounded-2xl text-center">
             <p className="text-sm font-medium">{error}</p>
           </div>
