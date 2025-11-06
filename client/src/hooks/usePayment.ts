@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState } from 'react';
 import { usePrivy, useWallets } from '@privy-io/react-auth';
 import { ethers } from 'ethers';
 import {
@@ -9,26 +9,14 @@ import {
   type VerifyResponse,
   type SettleResponse,
 } from '@/lib/paymentService';
-import {
-  PaymentCacheManager,
-  type CachedAuthorization,
-} from '@/lib/paymentCache';
-
-const BATCH_SIZE = 10;
 
 export function usePayment() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [verifyResult, setVerifyResult] = useState<VerifyResponse | null>(null);
   const [settleResult, setSettleResult] = useState<SettleResponse | null>(null);
-  const [remainingAuthorizations, setRemainingAuthorizations] = useState(0);
   const { user, sendTransaction } = usePrivy();
   const { wallets } = useWallets();
-
-  const updateRemainingCount = useCallback((walletAddress: string) => {
-    const count = PaymentCacheManager.getRemainingCount(walletAddress);
-    setRemainingAuthorizations(count);
-  }, []);
 
   const ensureCorrectNetwork = async () => {
     if (wallets.length === 0) {
@@ -84,11 +72,16 @@ export function usePayment() {
     }
   };
 
-  const generateBatchAuthorizations = async () => {
-    // Note: Loading state is managed by processPayment - don't reset it here
+  const processPayment = async () => {
+    setLoading(true);
+    setError(null);
+    setVerifyResult(null);
+    setSettleResult(null);
+
     try {
-      console.log(`Generating batch of ${BATCH_SIZE} payment authorizations...`);
+      console.log('Starting payment process...');
       await ensureCorrectNetwork();
+      console.log('Network check complete');
 
       if (wallets.length === 0) {
         throw new Error('No wallet connected. Please connect a wallet first.');
@@ -96,9 +89,25 @@ export function usePayment() {
 
       const activeWallet = wallets[0];
       const walletAddress = activeWallet.address;
-      const provider = await activeWallet.getEthereumProvider();
 
+      console.log('Creating EIP-3009 gasless authorization...');
+
+      // Get the ethereum provider from the wallet
+      const provider = await activeWallet.getEthereumProvider();
+      console.log('Got ethereum provider');
+
+      // Generate random 32-byte nonce for EIP-3009 (not sequential like transaction nonce)
+      const randomNonce = ethers.hexlify(ethers.randomBytes(32));
+      console.log('Generated random nonce:', randomNonce);
+
+      // Set time window for authorization validity
+      const validAfter = 0; // Valid immediately
+      const validBefore = Math.floor(Date.now() / 1000) + 3600; // Valid for 1 hour
+      console.log('Valid after:', validAfter, 'Valid before:', validBefore);
+
+      // Create EIP-712 typed data for TransferWithAuthorization
       const domain = PAYMENT_CONFIG.eip712Domain;
+      
       const types = {
         TransferWithAuthorization: [
           { name: 'from', type: 'address' },
@@ -110,24 +119,25 @@ export function usePayment() {
         ],
       };
 
-      const validAfter = 0;
-      const validBefore = Math.floor(Date.now() / 1000) + 3600; // 1 hour validity
+      const message = {
+        from: walletAddress,
+        to: PAYMENT_CONFIG.recipientAddress,
+        value: PAYMENT_CONFIG.lensPaymentAmount,
+        validAfter: validAfter,
+        validBefore: validBefore,
+        nonce: randomNonce,
+      };
 
-      const authorizations: CachedAuthorization[] = [];
+      console.log('EIP-712 domain:', JSON.stringify(domain, null, 2));
+      console.log('EIP-712 message:', JSON.stringify(message, null, 2));
 
-      // Generate and sign each authorization
-      for (let i = 0; i < BATCH_SIZE; i++) {
-        const randomNonce = ethers.hexlify(ethers.randomBytes(32));
+      // Request EIP-712 signature using eth_signTypedData_v4
+      // This is truly gasless - wallet doesn't check for ETH balance
+      let signature: string;
+      try {
+        console.log('Requesting EIP-712 signature (gasless - no ETH needed)...');
         
-        const message = {
-          from: walletAddress,
-          to: PAYMENT_CONFIG.recipientAddress,
-          value: PAYMENT_CONFIG.lensPaymentAmount,
-          validAfter,
-          validBefore,
-          nonce: randomNonce,
-        };
-
+        // Prepare typed data payload for eth_signTypedData_v4
         const typedData = {
           types: {
             EIP712Domain: [
@@ -139,80 +149,44 @@ export function usePayment() {
             TransferWithAuthorization: types.TransferWithAuthorization,
           },
           primaryType: 'TransferWithAuthorization',
-          domain,
-          message,
+          domain: domain,
+          message: message,
         };
 
-        console.log(`Requesting signature ${i + 1}/${BATCH_SIZE}...`);
-
-        const signature = await provider.request({
+        signature = await provider.request({
           method: 'eth_signTypedData_v4',
           params: [walletAddress, JSON.stringify(typedData)],
         }) as string;
-
-        const sig = ethers.Signature.from(signature);
-
-        authorizations.push({
-          from: walletAddress,
-          to: PAYMENT_CONFIG.recipientAddress,
-          value: PAYMENT_CONFIG.lensPaymentAmount,
-          validAfter: validAfter.toString(),
-          validBefore: validBefore.toString(),
-          nonce: randomNonce,
-          v: sig.v,
-          r: sig.r,
-          s: sig.s,
-          used: false,
-        });
-
-        console.log(`Authorization ${i + 1}/${BATCH_SIZE} signed`);
+        
+        console.log('EIP-712 signature obtained:', signature);
+      } catch (signError: any) {
+        console.error('Signing error:', signError);
+        throw new Error(
+          signError?.message || signError?.toString() ||
+          'Failed to sign authorization. Please ensure your wallet supports EIP-712 signatures.'
+        );
       }
 
-      // Save to cache
-      PaymentCacheManager.addAuthorizations(walletAddress, authorizations);
-      updateRemainingCount(walletAddress);
+      // Parse signature into v, r, s components
+      const sig = ethers.Signature.from(signature);
+      
+      console.log('Raw signature:', signature);
+      console.log('Parsed signature - v:', sig.v, 'r:', sig.r, 's:', sig.s);
+      
+      const authorization = {
+        from: walletAddress,
+        to: PAYMENT_CONFIG.recipientAddress,
+        value: PAYMENT_CONFIG.lensPaymentAmount,
+        validAfter: validAfter.toString(),
+        validBefore: validBefore.toString(),
+        nonce: randomNonce,
+        v: sig.v,
+        r: sig.r,
+        s: sig.s,
+      };
 
-      console.log(`Successfully generated and cached ${BATCH_SIZE} authorizations`);
-
-      return authorizations;
-    } catch (err: any) {
-      console.error('Batch generation error:', err);
-      let errorMessage = 'Failed to generate payment authorizations';
-      if (err?.message) {
-        errorMessage = err.message;
-      }
-      setError(errorMessage);
-      throw new Error(errorMessage);
-    }
-  };
-
-  const processPayment = async () => {
-    setLoading(true);
-    setError(null);
-    setVerifyResult(null);
-    setSettleResult(null);
-
-    try {
-      console.log('Starting payment process...');
-      await ensureCorrectNetwork();
-
-      if (wallets.length === 0) {
-        throw new Error('No wallet connected. Please connect a wallet first.');
-      }
-
-      const activeWallet = wallets[0];
-      const walletAddress = activeWallet.address;
-
-      // Check cache for unused authorization
-      let authorization = PaymentCacheManager.getNextUnusedAuthorization(walletAddress);
-
-      if (!authorization) {
-        console.log('No cached authorizations available, generating new batch...');
-        const newAuthorizations = await generateBatchAuthorizations();
-        authorization = newAuthorizations[0];
-      }
-
-      console.log('Using cached authorization with nonce:', authorization.nonce);
+      console.log('Authorization object:', JSON.stringify(authorization, null, 2));
+      console.log('Authorization JSON string:', JSON.stringify(authorization));
 
       const paymentDetails: PaymentDetails = {
         networkId: PAYMENT_CONFIG.networkId,
@@ -233,10 +207,6 @@ export function usePayment() {
       );
       setSettleResult(settleRes);
       console.log('Payment settled by facilitator:', settleRes);
-
-      // Mark authorization as used
-      PaymentCacheManager.markAuthorizationAsUsed(walletAddress, authorization.nonce);
-      updateRemainingCount(walletAddress);
 
       return {
         success: true,
@@ -264,12 +234,9 @@ export function usePayment() {
 
   return {
     processPayment,
-    generateBatchAuthorizations,
     loading,
     error,
     verifyResult,
     settleResult,
-    remainingAuthorizations,
-    updateRemainingCount,
   };
 }
