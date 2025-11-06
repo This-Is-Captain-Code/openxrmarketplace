@@ -101,7 +101,7 @@ export function usePayment() {
       const activeWallet = wallets[0];
       const walletAddress = activeWallet.address;
 
-      console.log('Creating transaction for signing (no gas required from user)...');
+      console.log('Creating transaction for signing...');
 
       // Get the ethereum provider from the wallet
       const ethereumProvider = await activeWallet.getEthereumProvider();
@@ -109,6 +109,9 @@ export function usePayment() {
       // Create an ethers provider and signer from Privy wallet
       const provider = new ethers.BrowserProvider(ethereumProvider);
       const signer = await provider.getSigner();
+
+      // Get transaction count (nonce)
+      const nonce = await provider.getTransactionCount(walletAddress);
 
       // Create ERC20 contract interface for encoding the transfer
       const erc20Interface = new ethers.Interface([
@@ -121,16 +124,19 @@ export function usePayment() {
         PAYMENT_CONFIG.lensPaymentAmount,
       ]);
 
-      // Create the transaction object WITHOUT gas parameters
-      // The x402 facilitator will add gas when broadcasting
+      // Create the complete transaction object with all required parameters
+      // Note: User sees gas estimate in wallet, but x402 facilitator pays the actual gas
       const transaction = {
         to: PAYMENT_CONFIG.fluidTokenAddress,
         data,
         value: 0,
+        nonce,
         chainId: PAYMENT_CONFIG.chainId,
+        gasLimit: 100000, // Sufficient for ERC20 transfer
+        gasPrice: ethers.parseUnits('1', 'gwei'), // 1 gwei
       };
 
-      console.log('Requesting user signature (no gas fee - facilitator pays)...');
+      console.log('Requesting signature (facilitator will pay gas when broadcasting)...');
       
       // Sign the transaction using ethers
       let signedTransaction: string;
