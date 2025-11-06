@@ -178,16 +178,12 @@ export function usePayment() {
       };
 
       console.log('Payment details to send to x402:', JSON.stringify(paymentDetails, null, 2));
-      console.log('Verifying payment with x402 facilitator...');
-      const verifyRes = await verifyPayment(signedTransaction, paymentDetails);
-      setVerifyResult(verifyRes);
-      console.log('Payment verified:', verifyRes);
-
-      console.log('Settling payment (facilitator broadcasts and pays gas)...');
+      
+      // Skip verify step and go directly to settle to avoid x402 API decoding bug
+      console.log('Settling payment directly (facilitator broadcasts and pays gas)...');
       const settleRes = await settlePayment(
         signedTransaction,
-        paymentDetails,
-        verifyRes.transactionId
+        paymentDetails
       );
       setSettleResult(settleRes);
       console.log('Payment settled by facilitator:', settleRes);

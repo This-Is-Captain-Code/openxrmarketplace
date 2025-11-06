@@ -1,0 +1,57 @@
+Successfully verified access token. 1715-ed505a3c5d5c3403.js:1:37806
+Transaction signed successfully: 0x02f8b48252028085012a05f20085012a05f208830186a094d8acbc0d60accceef70d9b84ac47153b3895d3d080b844a9059cbb000000000000000000000000b448e18d272291503fb8f3150247e2b4bc817729000000000000000000000000000000000000000000000000002386f26fc10000c001a0983a99d7480e025d7c6e74cd58f5ea496940df07802522d14e6d651151d8d2d0a0676c588ce2d1b28c1b9858bc02f288896597ffec7b8a809a94c6137dba94fe39 index-CzReIGS6.js:671:213962
+Payment details to send to x402: {
+  "networkId": "20994",
+  "amount": "10000000000000000",
+  "to": "0xb448e18d272291503fb8f3150247e2b4bc817729",
+  "from": "0x17411acF182200fFE1c040A7593cCF68BE75C765",
+  "scheme": "evm-erc20",
+  "tokenAddress": "0xd8acBC0d60acCCeeF70D9b84ac47153b3895D3d0"
+} index-CzReIGS6.js:671:214359
+Verifying payment with x402 facilitator... index-CzReIGS6.js:671:214432
+x402 verify request body: {
+  "paymentPayload": "0x02f8b48252028085012a05f20085012a05f208830186a094d8acbc0d60accceef70d9b84ac47153b3895d3d080b844a9059cbb000000000000000000000000b448e18d272291503fb8f3150247e2b4bc817729000000000000000000000000000000000000000000000000002386f26fc10000c001a0983a99d7480e025d7c6e74cd58f5ea496940df07802522d14e6d651151d8d2d0a0676c588ce2d1b28c1b9858bc02f288896597ffec7b8a809a94c6137dba94fe39",
+  "paymentDetails": {
+    "networkId": "20994",
+    "amount": "10000000000000000",
+    "to": "0xb448e18d272291503fb8f3150247e2b4bc817729",
+    "from": "0x17411acF182200fFE1c040A7593cCF68BE75C765",
+    "scheme": "evm-erc20",
+    "tokenAddress": "0xd8acBC0d60acCCeeF70D9b84ac47153b3895D3d0"
+  }
+} index-CzReIGS6.js:671:144073
+Payment error: Error: Token amount mismatch. Expected 10000000000000000, got 0.01
+    Llt https://oseven.xyz/assets/index-CzReIGS6.js:671
+    processPayment https://oseven.xyz/assets/index-CzReIGS6.js:671
+    y https://oseven.xyz/assets/index-CzReIGS6.js:719
+    onClick https://oseven.xyz/assets/index-CzReIGS6.js:715
+    Ice https://oseven.xyz/assets/index-CzReIGS6.js:42
+    Pce https://oseven.xyz/assets/index-CzReIGS6.js:42
+    Nce https://oseven.xyz/assets/index-CzReIGS6.js:42
+    uN https://oseven.xyz/assets/index-CzReIGS6.js:42
+    AW https://oseven.xyz/assets/index-CzReIGS6.js:42
+    p8 https://oseven.xyz/assets/index-CzReIGS6.js:42
+    IS https://oseven.xyz/assets/index-CzReIGS6.js:45
+    Jz https://oseven.xyz/assets/index-CzReIGS6.js:42
+    p8 https://oseven.xyz/assets/index-CzReIGS6.js:42
+    rS https://oseven.xyz/assets/index-CzReIGS6.js:42
+    Kce https://oseven.xyz/assets/index-CzReIGS6.js:42
+index-CzReIGS6.js:671:214790
+Payment failed: Error: Token amount mismatch. Expected 10000000000000000, got 0.01
+    processPayment https://oseven.xyz/assets/index-CzReIGS6.js:671
+    y https://oseven.xyz/assets/index-CzReIGS6.js:719
+    onClick https://oseven.xyz/assets/index-CzReIGS6.js:715
+    Ice https://oseven.xyz/assets/index-CzReIGS6.js:42
+    Pce https://oseven.xyz/assets/index-CzReIGS6.js:42
+    Nce https://oseven.xyz/assets/index-CzReIGS6.js:42
+    uN https://oseven.xyz/assets/index-CzReIGS6.js:42
+    AW https://oseven.xyz/assets/index-CzReIGS6.js:42
+    p8 https://oseven.xyz/assets/index-CzReIGS6.js:42
+    IS https://oseven.xyz/assets/index-CzReIGS6.js:45
+    Jz https://oseven.xyz/assets/index-CzReIGS6.js:42
+    p8 https://oseven.xyz/assets/index-CzReIGS6.js:42
+    rS https://oseven.xyz/assets/index-CzReIGS6.js:42
+    Kce https://oseven.xyz/assets/index-CzReIGS6.js:42
+index-CzReIGS6.js:719:13558
+
+​
