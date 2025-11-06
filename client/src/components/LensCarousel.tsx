@@ -13,7 +13,7 @@ interface LensCarouselProps {
 
 export default function LensCarousel({ lenses, onLensSelect, selectedLensId }: LensCarouselProps) {
   return (
-    <div className="w-full" data-testid="carousel-lenses">
+    <div className="w-full mb-4" data-testid="carousel-lenses">
       <div className="overflow-x-auto scrollbar-hide">
         <div className="flex items-center justify-start gap-3 px-4 min-w-max">
           {lenses.map((lens, index) => {
