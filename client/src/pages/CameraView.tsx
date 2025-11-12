@@ -44,7 +44,7 @@ function CameraViewContent() {
   } = useCameraKit(containerRef, canvasRef);
 
   const handleLensSelect = async (lens: Lens) => {
-    console.log('Selecting lens:', lens.name);
+    console.log('Selecting lens:', lens.name, 'ID:', lens.id, 'Group ID:', lens.groupId);
     
     try {
       toast({
@@ -60,7 +60,21 @@ function CameraViewContent() {
       });
 
       setSelectedLensId(lens.id);
-      applyLens(lens.id, lens.groupId || null);
+      
+      try {
+        await applyLens(lens.id, lens.groupId || null);
+        toast({
+          title: 'Lens applied',
+          description: `Successfully applied ${lens.name}`,
+        });
+      } catch (lensErr: any) {
+        console.error('Lens application failed:', lensErr);
+        toast({
+          title: 'Lens application failed',
+          description: lensErr.message || 'Unable to apply lens. Check console for details.',
+          variant: 'destructive',
+        });
+      }
     } catch (err: any) {
       console.error('Payment failed:', err);
       toast({

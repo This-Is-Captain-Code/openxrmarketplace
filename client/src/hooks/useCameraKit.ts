@@ -115,15 +115,18 @@ export const useCameraKit = (
     }
   };
   
-  const applyLens = (lensId: string, groupId: string | null = null) => {
+  const applyLens = async (lensId: string, groupId: string | null = null): Promise<void> => {
     if (status !== 'ready' || !canvasRef.current) {
-      return;
+      throw new Error('Camera not ready');
     }
     
-    applyLensToCanvas(canvasRef.current, lensId, groupId).catch(err => {
+    try {
+      await applyLensToCanvas(canvasRef.current, lensId, groupId);
+    } catch (err) {
       console.error('Failed to apply lens:', err);
       setError(err instanceof Error ? err.message : 'Failed to apply lens');
-    });
+      throw err;
+    }
   };
 
   const capturePhoto = async (): Promise<string | null> => {
