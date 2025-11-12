@@ -73,7 +73,7 @@ function MarketplaceContent() {
                   ID: {lens.id.substring(0, 8)}...
                 </p>
                 <Badge variant="outline" className="text-xs">
-                  1 FLUID
+                  0.01 FLUID
                 </Badge>
               </CardContent>
             </Card>

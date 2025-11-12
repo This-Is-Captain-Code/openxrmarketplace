@@ -218,7 +218,7 @@ export default function CameraControls({
                     )}
                   </div>
                   <p className="text-xs text-muted-foreground mt-1">
-                    Each lens costs 1 FLUID token
+                    Each lens costs 0.01 FLUID token
                     {balance === '0' && !loadingBalance && (
                       <span className="block mt-1 text-amber-500">⚠️ Unable to verify balance. Visit block explorer to check.</span>
                     )}
@@ -259,7 +259,7 @@ export default function CameraControls({
                 <li>Copy your wallet address above</li>
                 <li>Get FLUID tokens from the Fluent Testnet faucet</li>
                 <li>Send FLUID tokens to this address</li>
-                <li>Each lens costs 1 FLUID token to open</li>
+                <li>Each lens costs 0.01 FLUID token to open</li>
               </ol>
             </div>
 
