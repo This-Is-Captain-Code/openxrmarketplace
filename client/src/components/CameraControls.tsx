@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { User, Copy, Check, Wallet, RefreshCw } from 'lucide-react';
+import { User, Copy, Check, Wallet, RefreshCw, ShoppingBag } from 'lucide-react';
+import { useLocation } from 'wouter';
 import { usePrivy } from '@privy-io/react-auth';
 import { Button } from './ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from './ui/dialog';
@@ -21,6 +22,7 @@ export default function CameraControls({
   const [loadingBalance, setLoadingBalance] = useState(false);
   const { user, createWallet } = usePrivy();
   const { toast } = useToast();
+  const [, setLocation] = useLocation();
 
   const handleCapture = () => {
     if (!disabled) {
@@ -149,13 +151,14 @@ export default function CameraControls({
           </button>
 
           <Button
-            data-testid="button-help"
+            data-testid="button-marketplace"
             size="icon"
             variant="ghost"
             className="w-12 h-12 rounded-full bg-white/10 backdrop-blur-sm text-white hover:bg-white/20 flex-shrink-0"
-            aria-label="Help"
+            aria-label="Lens Marketplace"
+            onClick={() => setLocation('/marketplace')}
           >
-            <span className="text-xl">?</span>
+            <ShoppingBag className="w-5 h-5" />
           </Button>
         </div>
       </div>
