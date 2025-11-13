@@ -131,7 +131,7 @@ function CameraViewContent() {
 
       <div className="absolute inset-x-0 top-0 z-30 p-4">
         <div className="flex items-center justify-between">
-          <div className="text-white text-3xl" style={{ fontFamily: 'Lexlox, sans-serif' }}>
+          <div className="text-white text-3xl font-bold" style={{ fontFamily: 'Lexlox, sans-serif', color: '#ffffff' }}>
             o7
           </div>
           <div className="flex items-center gap-3">
