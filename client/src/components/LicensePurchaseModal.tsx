@@ -44,7 +44,7 @@ export default function LicensePurchaseModal({
         throw new Error('Keplr wallet not found');
       }
 
-      // Get provider
+      // Get provider from Keplr
       let provider = w.keplr.providers?.eip155;
       if (!provider) {
         provider = w.keplr.ethereum;
@@ -59,45 +59,28 @@ export default function LicensePurchaseModal({
         description: 'Please approve the transaction in your Keplr wallet',
       });
 
-      // Use JSON-RPC directly to send transaction
+      // Create ethers provider and signer
       const ethersProvider = new ethers.BrowserProvider(provider);
       const signer = await ethersProvider.getSigner();
       const userAddress = await signer.getAddress();
 
       if (userAddress.toLowerCase() !== user.wallet.address.toLowerCase()) {
-        throw new Error('Wallet mismatch');
+        throw new Error('Wallet address mismatch');
       }
 
-      // Create contract interface to encode the function
-      const iface = new ethers.Interface(gameABI);
-      const data = iface.encodeFunctionData('purchaseLicense', [gameId]);
+      // Create contract and call function
+      const contract = new ethers.Contract(
+        GAME_LICENSING_CONFIG.contractAddress,
+        gameABI,
+        signer
+      );
 
       const priceInWei = ethers.parseEther(GAME_LICENSING_CONFIG.arLensesPrice);
 
-      // Get gas price
-      const gasPrice = await ethersProvider.getGasPrice();
-      
-      // Prepare transaction
-      const tx = {
-        to: GAME_LICENSING_CONFIG.contractAddress,
-        from: userAddress,
-        data: data,
+      // Send transaction - let signer handle gas estimation
+      const txResponse = await contract.purchaseLicense(gameId, {
         value: priceInWei,
-        gasLimit: 300000n, // Fixed gas limit for purchaseLicense
-        gasPrice: gasPrice,
-      };
-
-      // Estimate gas first
-      try {
-        const estimatedGas = await ethersProvider.estimateGas(tx);
-        tx.gasLimit = estimatedGas > 300000n ? estimatedGas : 300000n;
-      } catch (estimateErr) {
-        console.warn('Gas estimation failed, using fixed limit:', estimateErr);
-        tx.gasLimit = 300000n;
-      }
-
-      // Send transaction
-      const txResponse = await signer.sendTransaction(tx);
+      });
 
       toast({
         title: 'Processing payment...',
