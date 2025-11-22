@@ -125,39 +125,53 @@ export default function LicensePurchaseModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md">
+      <DialogContent className="max-w-md border-0 bg-black/95 backdrop-blur supports-[backdrop-filter]:bg-black/80">
         <DialogHeader>
-          <DialogTitle>Purchase AR Lenses License</DialogTitle>
-          <DialogDescription>
-            Get unlimited access to AR Lenses for a one-time payment
+          <DialogTitle className="text-white text-2xl font-bold">AR Lenses License</DialogTitle>
+          <DialogDescription className="text-gray-400">
+            Unlock stunning AR effects for a one-time payment
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-4">
-          <div className="bg-muted/50 p-4 rounded-lg">
-            <div className="flex justify-between items-center mb-2">
-              <span className="text-sm font-medium text-muted-foreground">Price</span>
-              <span className="text-2xl font-bold text-white">{GAME_LICENSING_CONFIG.arLensesPrice} XRT</span>
+        <div className="space-y-5">
+          <div className="relative overflow-hidden rounded-lg border border-white/10 bg-gradient-to-b from-white/5 to-white/0 p-5">
+            <div className="flex justify-between items-baseline gap-4">
+              <span className="text-sm font-medium text-gray-400">Price</span>
+              <div className="text-right">
+                <span className="text-4xl font-bold" style={{ color: '#C1FF72' }}>
+                  {GAME_LICENSING_CONFIG.arLensesPrice}
+                </span>
+                <span className="text-sm text-gray-400 ml-2">XRT</span>
+              </div>
             </div>
-            <p className="text-xs text-muted-foreground">
-              Pay once, access forever. No recurring charges.
+            <p className="text-xs text-gray-500 mt-3">
+              Pay once • Access forever • No recurring charges
             </p>
           </div>
 
-          <div className="space-y-2">
-            <h4 className="font-medium">What you get:</h4>
-            <ul className="text-sm text-muted-foreground space-y-1">
-              <li>✓ Unlimited access to all AR lenses</li>
-              <li>✓ Real-time AR effects on your camera</li>
-              <li>✓ Photo capture with AR filters</li>
-              <li>✓ Permanent license (one-time payment)</li>
+          <div className="space-y-3">
+            <h4 className="text-sm font-semibold text-white">What you get:</h4>
+            <ul className="text-sm space-y-2">
+              <li className="flex items-center gap-2 text-gray-300">
+                <span style={{ color: '#C1FF72' }}>✓</span> Unlimited access to all AR lenses
+              </li>
+              <li className="flex items-center gap-2 text-gray-300">
+                <span style={{ color: '#C1FF72' }}>✓</span> Real-time AR effects on camera
+              </li>
+              <li className="flex items-center gap-2 text-gray-300">
+                <span style={{ color: '#C1FF72' }}>✓</span> Photo capture with AR filters
+              </li>
+              <li className="flex items-center gap-2 text-gray-300">
+                <span style={{ color: '#C1FF72' }}>✓</span> Permanent license (one-time)
+              </li>
             </ul>
           </div>
 
           <Button
             onClick={handlePurchase}
             disabled={loading}
-            className="w-full"
+            className="w-full mt-6 bg-black text-black font-semibold hover:bg-opacity-90"
+            style={{ backgroundColor: '#C1FF72' }}
             size="lg"
           >
             {loading ? (
