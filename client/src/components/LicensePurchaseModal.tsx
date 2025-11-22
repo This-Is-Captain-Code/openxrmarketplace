@@ -152,26 +152,38 @@ export default function LicensePurchaseModal({
       const iface = new ethers.Interface(gameABI);
       const data = iface.encodeFunctionData('purchaseLicense', [ethers.toBigInt(numericGameId)]);
       
-      // Build and send raw transaction
-      const txHash = await signer.sendTransaction({
-        to: GAME_LICENSING_CONFIG.contractAddress,
-        data: data,
-        value: valueInWei
-      });
+      console.log('Encoded data:', data);
+      console.log('Signer:', signerAddress);
+      
+      // Use provider's request method directly to avoid ethers.js parsing issues
+      try {
+        const txHash = await provider.request({
+          method: 'eth_sendTransaction',
+          params: [{
+            from: signerAddress,
+            to: GAME_LICENSING_CONFIG.contractAddress,
+            data: data,
+            value: valueInWei.toString().startsWith('0x') ? valueInWei.toString() : '0x' + valueInWei.toString(16)
+          }]
+        });
 
-      if (!txHash) {
-        throw new Error('Transaction failed to send');
+        if (!txHash) {
+          throw new Error('Transaction failed to send');
+        }
+
+        console.log('Transaction hash:', txHash);
+
+        toast({
+          title: 'License purchased!',
+          description: `Transaction submitted`,
+        });
+
+        onPurchaseSuccess?.();
+        onOpenChange(false);
+      } catch (rpcError) {
+        console.error('RPC error:', rpcError);
+        throw rpcError;
       }
-
-      console.log('Transaction hash:', txHash);
-
-      toast({
-        title: 'License purchased!',
-        description: `Transaction submitted`,
-      });
-
-      onPurchaseSuccess?.();
-      onOpenChange(false);
     } catch (err) {
       console.error('Purchase error:', err);
 
