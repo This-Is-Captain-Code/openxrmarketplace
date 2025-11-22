@@ -120,9 +120,9 @@ export default function LicensePurchaseModal({
         throw new Error(`Address mismatch: Keplr has ${signerAddress}, but app expects ${user.wallet.address}`);
       }
 
-      // Verify we're on the right network
+      // Verify we're on the right network (compare as strings to avoid BigInt precision issues)
       const network = await ethersProvider.getNetwork();
-      if (network.chainId !== SAGA_CHAIN_CONFIG.networkId) {
+      if (String(network.chainId) !== String(SAGA_CHAIN_CONFIG.networkId)) {
         throw new Error(
           `Wrong network detected: You're on chain ${network.chainId}, but should be on ${SAGA_CHAIN_CONFIG.networkId}.`
         );
