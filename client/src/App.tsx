@@ -43,14 +43,6 @@ function App() {
             createOnLogin: "all-users",
           },
         },
-        defaultChain: "ethereum",
-        supportedChains: ["ethereum", "solana"],
-        rpcConfig: {
-          ethereum: {
-            rpcUrl: SAGA_CHAIN_CONFIG.rpcUrl,
-            wsUrl: SAGA_CHAIN_CONFIG.wsUrl,
-          },
-        },
       }}
     >
       <QueryClientProvider client={queryClient}>
