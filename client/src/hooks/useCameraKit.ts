@@ -15,9 +15,11 @@ export const useCameraKit = (
 
   useEffect(() => {
     let mounted = true;
+    let timeoutId: NodeJS.Timeout;
     
     const init = async () => {
       try {
+        // Ensure refs are available (they might need a moment to be attached to DOM)
         if (!containerRef.current || !canvasRef.current) {
           throw new Error('Container or canvas reference not available');
         }
@@ -27,11 +29,11 @@ export const useCameraKit = (
         });
         
         if (permission.state === 'denied') {
-          setStatus('permission_needed');
+          if (mounted) setStatus('permission_needed');
           return;
         }
 
-        setStatus('loading');
+        if (mounted) setStatus('loading');
         
         const stream = await initializeCamera({
           canvas: canvasRef.current,
@@ -45,7 +47,7 @@ export const useCameraKit = (
         }
         
         streamRef.current = stream;
-        setStatus('ready');
+        if (mounted) setStatus('ready');
       } catch (err) {
         console.error('Camera initialization failed:', err);
         if (mounted) {
@@ -55,9 +57,11 @@ export const useCameraKit = (
       }
     };
     
-    init();
+    // Small delay to ensure refs are properly attached to DOM
+    timeoutId = setTimeout(init, 50);
     
     return () => {
+      clearTimeout(timeoutId);
       mounted = false;
       if (streamRef.current) {
         streamRef.current.getTracks().forEach(track => track.stop());
@@ -66,7 +70,7 @@ export const useCameraKit = (
         console.warn('Error during Camera Kit cleanup:', err);
       });
     };
-  }, [containerRef, canvasRef]);
+  }, [containerRef, canvasRef, isFrontCamera]);
 
   const requestPermission = async () => {
     try {
