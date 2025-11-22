@@ -29,7 +29,7 @@ export const SAGA_CHAIN_CONFIG = {
 };
 
 export const GAME_LICENSING_CONFIG = {
-  contractAddress: '0x0B4eDc73E833F8E50e6b4159ae5e6712c339f5C3',
+  contractAddress: '0x91C7B6f8905060D6aE711878020DB15E90C697E0',
   arLensesGameId: 1,
   arLensesPrice: '2324', // XRT tokens
 };
