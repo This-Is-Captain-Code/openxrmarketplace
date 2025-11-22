@@ -11,8 +11,9 @@ import NotFound from "@/pages/not-found";
 function Router() {
   return (
     <Switch>
-      <Route path="/" component={CameraView} />
-      <Route path="/marketplace" component={Marketplace} />
+      <Route path="/" component={Marketplace} />
+      <Route path="/camera/:lensId" component={CameraView} />
+      <Route path="/camera" component={CameraView} />
       <Route component={NotFound} />
     </Switch>
   );

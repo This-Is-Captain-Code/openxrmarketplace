@@ -1,12 +1,16 @@
 import { useLocation } from 'wouter';
-import { ArrowLeft, Sparkles } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { Sparkles } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import AuthGuard from '@/components/AuthGuard';
-import { Lens } from '@/components/LensCarousel';
 
-const mockLenses: Lens[] = [
+export interface Lens {
+  id: string;
+  name: string;
+  groupId?: string;
+}
+
+export const mockLenses: Lens[] = [
   { id: '887d80da-f4ba-4a40-a0d6-4e4d0cfb31b1', name: 'Lens 1', groupId: 'b5551368-7881-4a23-a034-a0e757ec85a7' },
   { id: '43276710876', name: 'Lens 2', groupId: '2a385df2-4591-47df-9594-b273b456c862' },
   { id: '43276930875', name: 'Lens 3', groupId: '2a385df2-4591-47df-9594-b273b456c862' },
@@ -24,22 +28,17 @@ const mockLenses: Lens[] = [
 function MarketplaceContent() {
   const [, setLocation] = useLocation();
 
+  const handleLensClick = (lens: Lens) => {
+    setLocation(`/camera/${lens.id}`);
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="container flex h-16 items-center gap-4 px-4">
-          <Button
-            data-testid="button-back"
-            variant="ghost"
-            size="icon"
-            onClick={() => setLocation('/')}
-            aria-label="Back to camera"
-          >
-            <ArrowLeft className="w-5 h-5" />
-          </Button>
           <div className="flex items-center gap-2">
             <Sparkles className="w-6 h-6 text-primary" />
-            <h1 className="text-xl font-semibold">Lens Marketplace</h1>
+            <h1 className="text-xl font-semibold">AR Lens Collection</h1>
           </div>
         </div>
       </header>
@@ -59,7 +58,7 @@ function MarketplaceContent() {
             <Card
               key={lens.id}
               className="hover-elevate active-elevate-2 cursor-pointer overflow-visible"
-              onClick={() => setLocation('/')}
+              onClick={() => handleLensClick(lens)}
               data-testid={`card-lens-${lens.id}`}
             >
               <CardContent className="p-4">
@@ -70,7 +69,7 @@ function MarketplaceContent() {
                   {lens.name}
                 </h3>
                 <p className="text-xs text-muted-foreground">
-                  ID: {lens.id.substring(0, 8)}...
+                  Tap to try
                 </p>
               </CardContent>
             </Card>
