@@ -63,42 +63,54 @@ function HomeContent() {
             const { hasLicense } = useLicense(lens.id);
             
             return (
-              <Card
-                key={lens.id}
-                className="hover-elevate active-elevate-2 cursor-pointer overflow-hidden border-0 h-full flex flex-col"
-                data-testid={`card-lens-${lens.id}`}
-              >
-                <CardContent className="p-0 relative flex-1">
-                  <div className="aspect-[3/4] relative">
-                    <img
-                      src={lens.coverImage}
-                      alt={lens.displayName}
-                      className="absolute inset-0 w-full h-full object-cover"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/50 to-transparent" />
-                    <div className="absolute inset-0 flex flex-col justify-between p-4 text-white">
-                      <div>
-                        <span className="text-xs font-bold tracking-wider bg-primary/90 backdrop-blur-sm px-2 py-1 rounded-md inline-block" style={{ backgroundColor: '#C1FF72', color: '#000' }}>
+              <div key={lens.id} className="flex flex-col gap-4">
+                {/* Image Card */}
+                <Card
+                  className="hover-elevate active-elevate-2 cursor-pointer overflow-hidden border-0 flex-1"
+                  onClick={() => handleLensClick(lens.id)}
+                  data-testid={`card-lens-${lens.id}`}
+                >
+                  <CardContent className="p-0">
+                    <div className="aspect-[3/4] relative rounded-lg overflow-hidden">
+                      <img
+                        src={lens.coverImage}
+                        alt={lens.displayName}
+                        className="w-full h-full object-cover"
+                      />
+                      {/* Badge positioned in top right */}
+                      <div className="absolute top-3 right-3">
+                        <Badge className="font-bold text-xs" style={{ backgroundColor: '#C1FF72', color: '#000' }}>
                           {lens.name}
-                        </span>
-                      </div>
-                      <div>
-                        <h3 className="text-lg font-bold mb-3 drop-shadow-2xl leading-tight" data-testid={`text-lens-name-${lens.id}`}>
-                          {lens.displayName}
-                        </h3>
-                        <div className="flex items-center justify-between">
-                          <Badge variant="secondary" className="font-bold" style={{ backgroundColor: '#C1FF72', color: '#000' }}>
-                            {hasLicense ? '✓ Owned' : `${lens.price} XRT`}
-                          </Badge>
-                          {!hasLicense && (
-                            <Lock className="w-4 h-4 text-white/70" />
-                          )}
-                        </div>
+                        </Badge>
                       </div>
                     </div>
+                  </CardContent>
+                </Card>
+
+                {/* Info Section Below Card */}
+                <div className="space-y-3">
+                  {/* Title */}
+                  <div className="flex items-start justify-between gap-2">
+                    <h3 
+                      className="text-lg font-bold text-white leading-tight flex-1" 
+                      data-testid={`text-lens-name-${lens.id}`}
+                    >
+                      {lens.displayName}
+                    </h3>
+                    {!hasLicense && (
+                      <Lock className="w-4 h-4 text-white/50 flex-shrink-0 mt-1" />
+                    )}
                   </div>
-                </CardContent>
-                <div className="px-4 py-3 border-t border-white/10">
+
+                  {/* Price Info */}
+                  <div className="flex items-baseline justify-between">
+                    <span className="text-xs text-gray-400 uppercase tracking-wider">Price</span>
+                    <span className="text-sm font-bold" style={{ color: '#C1FF72' }}>
+                      {hasLicense ? '✓ Owned' : `${lens.price} XRT`}
+                    </span>
+                  </div>
+
+                  {/* Purchase Button */}
                   <Button
                     className="w-full"
                     onClick={() => handleLensClick(lens.id)}
@@ -108,7 +120,7 @@ function HomeContent() {
                     {hasLicense ? 'Use Filter' : 'Purchase'}
                   </Button>
                 </div>
-              </Card>
+              </div>
             );
           })}
         </div>
