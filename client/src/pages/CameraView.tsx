@@ -26,7 +26,7 @@ function CameraViewContent() {
   const [showLicenseModal, setShowLicenseModal] = useState(false);
   const { logout } = usePrivy();
   const { toast } = useToast();
-  const { hasLicense, loading: licenseLoading } = useLicense();
+  const { hasLicense, loading: licenseLoading, refetch } = useLicense();
 
   const {
     status,
@@ -140,9 +140,9 @@ function CameraViewContent() {
           onPurchaseSuccess={() => {
             toast({
               title: 'Success!',
-              description: 'License purchased. Reloading...',
+              description: 'License purchased. Initializing camera...',
             });
-            setTimeout(() => window.location.reload(), 1500);
+            refetch();
           }}
         />
       </div>
