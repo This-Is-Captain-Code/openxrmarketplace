@@ -125,10 +125,14 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
 
-### November 22, 2025
-- Removed Fluent testnet integration
-- Removed x402 facilitator payment processing
-- Removed FLUID token balance checking
-- Simplified lens selection to be free and instant
+### November 22, 2025 - Netflix-Style UI Redesign
+- Redesigned lens selection page with Netflix-style horizontal cards (16:9 aspect ratio)
+- Added 12 high-quality stock cover images for AR lens cards
+- Created unified Lens type in `@/types/lens.ts` with displayName and coverImage fields
+- Updated lens naming: formatted as "Lens 01" through "Lens 12" with descriptive names like "Glowing Aura", "Radiant Beauty", "Neon Dreams"
+- Implemented gradient overlay system (left-to-right from black/90 to transparent) over sharp cover images
+- Enhanced text hierarchy with prominent badges, bold display names, and drop shadows
+- Made lens selection completely free and instant (no payment flow)
+- Responsive grid layout: 1 column (mobile), 2 columns (medium), 3 columns (large)
+- Removed Fluent testnet and x402 payment infrastructure
 - Cleaned up wallet dialog to remove payment-related UI
-- Removed payment API endpoints from backend
