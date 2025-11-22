@@ -155,8 +155,8 @@ export default function LicensePurchaseModal({
         ethers.toBigInt(numericGameId),
         { 
           value: valueInWei,
-          gasLimit: ethers.toBigInt(300000),
-          gasPrice: ethers.toBigInt('1000000000')
+          gasLimit: ethers.toBigInt(100000),
+          gasPrice: ethers.toBigInt('1000000')
         }
       );
 
