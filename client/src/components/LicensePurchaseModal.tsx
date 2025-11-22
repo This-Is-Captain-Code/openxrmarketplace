@@ -135,6 +135,13 @@ export default function LicensePurchaseModal({
         throw new Error(`Wrong network: switch to Saga`);
       }
 
+      // Check wallet balance
+      const balance = await ethersProvider.getBalance(signerAddress);
+      const balanceInXRT = ethers.formatEther(balance);
+      console.log('Wallet address:', signerAddress);
+      console.log('Balance in Wei:', balance.toString());
+      console.log('Balance in XRT:', balanceInXRT);
+
       // Encode the function call
       const iface = new ethers.Interface(gameABI);
       const numericGameId = lensId ? getLensGameId(lensId) : gameId;
@@ -149,9 +156,27 @@ export default function LicensePurchaseModal({
       const priceStr = String(price);
       const valueInWei = ethers.parseEther(priceStr);
       
+      // Calculate total cost (value + gas)
+      const gasLimit = ethers.toBigInt(300000);
+      const gasPrice = ethers.toBigInt('1000000000'); // 1 gwei
+      const gasCost = gasLimit * gasPrice;
+      const totalCost = valueInWei + gasCost;
+      const totalCostInXRT = ethers.formatEther(totalCost);
+      
       console.log('Price in XRT:', priceStr);
       console.log('Value in Wei:', valueInWei.toString());
+      console.log('Gas cost in Wei:', gasCost.toString());
+      console.log('Gas cost in XRT:', ethers.formatEther(gasCost));
+      console.log('Total cost in XRT:', totalCostInXRT);
       console.log('Encoded data:', data);
+
+      // Check if balance is sufficient
+      if (balance < totalCost) {
+        const shortfall = ethers.formatEther(totalCost - balance);
+        throw new Error(
+          `Insufficient balance. You have ${balanceInXRT} XRT but need ${totalCostInXRT} XRT (${priceStr} for purchase + ${ethers.formatEther(gasCost)} for gas). You need ${shortfall} more XRT.`
+        );
+      }
 
       // Build transaction with fixed gas params
       const txData = {
@@ -206,19 +231,25 @@ export default function LicensePurchaseModal({
       console.error('Purchase error:', err);
 
       let errorMessage = 'An unexpected error occurred';
+      let errorTitle = 'Purchase failed';
       
       if (err instanceof Error) {
-        if (err.message.includes('user rejected')) {
-          errorMessage = 'You cancelled the transaction';
+        if (err.message.includes('user rejected') || err.message.includes('User Rejected')) {
+          errorTitle = 'Transaction cancelled';
+          errorMessage = 'You cancelled the transaction in your wallet';
+        } else if (err.message.includes('Insufficient balance')) {
+          errorTitle = 'Insufficient balance';
+          errorMessage = err.message;
         } else if (err.message.includes('insufficient funds')) {
-          errorMessage = 'Insufficient XRT balance';
+          errorTitle = 'Insufficient balance';
+          errorMessage = 'Not enough XRT to cover the transaction cost and gas fees';
         } else {
           errorMessage = err.message;
         }
       }
 
       toast({
-        title: 'Purchase failed',
+        title: errorTitle,
         description: errorMessage,
         variant: 'destructive',
       });
