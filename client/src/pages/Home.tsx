@@ -90,7 +90,17 @@ function HomeContent() {
                 <div className="absolute inset-0" style={{
                   background: 'linear-gradient(to top, rgba(0,0,0,1) 0%, rgba(0,0,0,0.2) 50%, rgba(0,0,0,0) 100%)'
                 }} />
-                <div className="absolute inset-0 flex flex-col justify-between p-6 text-white">
+                <div className="absolute inset-0 flex flex-col gap-4 p-6 text-white">
+                  {app.logo && (
+                    <div className="flex justify-start">
+                      <img 
+                        src={app.logo} 
+                        alt={app.name} 
+                        className="w-12 h-12 rounded-full object-cover"
+                        data-testid={`logo-app-${app.id}`}
+                      />
+                    </div>
+                  )}
                   <div className="flex flex-col gap-4">
                     <div className="flex items-center gap-3 justify-between">
                       <h3 className="text-2xl font-bold drop-shadow-2xl" data-testid={`text-app-name-${app.id}`}>
@@ -111,16 +121,6 @@ function HomeContent() {
                       </p>
                     )}
                   </div>
-                  {app.logo && (
-                    <div className="flex justify-start pt-4">
-                      <img 
-                        src={app.logo} 
-                        alt={app.name} 
-                        className="w-12 h-12 rounded-full object-cover"
-                        data-testid={`logo-app-${app.id}`}
-                      />
-                    </div>
-                  )}
                 </div>
               </CardContent>
             </Card>
