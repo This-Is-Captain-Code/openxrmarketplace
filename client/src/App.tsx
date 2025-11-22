@@ -4,6 +4,7 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { PrivyProvider } from "@privy-io/react-auth";
+import { SAGA_CHAIN_CONFIG } from "./lib/sagaChain";
 import Home from "@/pages/Home";
 import CameraView from "@/pages/CameraView";
 import Marketplace from "@/pages/Marketplace";
@@ -40,6 +41,14 @@ function App() {
         embeddedWallets: {
           ethereum: {
             createOnLogin: "all-users",
+          },
+        },
+        defaultChain: "ethereum",
+        supportedChains: ["ethereum", "solana"],
+        rpcConfig: {
+          ethereum: {
+            rpcUrl: SAGA_CHAIN_CONFIG.rpcUrl,
+            wsUrl: SAGA_CHAIN_CONFIG.wsUrl,
           },
         },
       }}

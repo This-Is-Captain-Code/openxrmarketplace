@@ -74,3 +74,11 @@ author = "agent"
 task = "shell.exec"
 args = "npm run dev"
 waitForPort = 5000
+
+[userenv]
+
+[userenv.shared]
+VITE_SAGA_CHAIN_ID = "openxr_2763783314764000-1"
+VITE_SAGA_RPC_URL = "https://openxr-2763783314764000-1.jsonrpc.sagarpc.io"
+VITE_SAGA_WS_URL = "https://openxr-2763783314764000-1.ws.sagarpc.io"
+VITE_SAGA_BLOCK_EXPLORER = "https://openxr-2763783314764000-1.sagaexplorer.io/"
