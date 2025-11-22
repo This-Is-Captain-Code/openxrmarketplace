@@ -22,7 +22,7 @@ export default function LensCarousel({ lenses, onLensSelect, currentLensId }: Le
                 className="flex-shrink-0 flex flex-col items-center gap-2 group"
                 aria-label={`Apply ${lens.displayName} lens`}
               >
-                <div className={`relative w-20 h-20 rounded-lg overflow-hidden transition-all duration-200 ${
+                <div className={`relative w-20 h-20 rounded-full overflow-hidden transition-all duration-200 ${
                   isSelected 
                     ? 'ring-2 ring-primary scale-110 shadow-lg' 
                     : 'opacity-70 group-hover:opacity-100'
