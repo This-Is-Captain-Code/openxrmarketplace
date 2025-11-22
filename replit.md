@@ -145,3 +145,12 @@ Preferred communication style: Simple, everyday language.
 - CameraView page: Full-screen camera on mobile, 90vh with subtle rounding on desktop
 - CameraView page: Responsive button sizing, icon sizing, and status text visibility (hidden on mobile)
 - All components adapt smoothly between mobile and desktop form factors
+
+**Wallet & Authentication Improvements:**
+- Disabled automatic embedded wallet creation on login (set to "off")
+- Hidden Privy's default wallet UIs for cleaner user experience
+- Fixed wallet detection to properly recognize both embedded and external wallets (MetaMask, etc.)
+- Wallet dialog now shows correct state based on actual wallet presence
+- Added validation to prevent duplicate wallet creation attempts
+- Removed Privy branding (logo, legal links, etc.) from the UI
+- Improved wallet address validation and display logic
