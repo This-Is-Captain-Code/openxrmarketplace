@@ -44,6 +44,7 @@ function HomeContent() {
             onClick={logout}
             size="icon"
             variant="ghost"
+            className="text-white hover:bg-white/20"
             data-testid="button-logout"
           >
             <LogOut className="w-5 h-5" />

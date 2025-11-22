@@ -54,7 +54,7 @@ function MarketplaceContent() {
           <div className="flex items-center gap-3">
             <Button
               onClick={() => setLocation('/')}
-              variant="ghost"
+              variant="ghost" className="text-white hover:bg-white/20"
               size="sm"
               data-testid="button-back-home"
             >
@@ -63,7 +63,7 @@ function MarketplaceContent() {
             <Button
               onClick={logout}
               size="icon"
-              variant="ghost"
+              variant="ghost" className="text-white hover:bg-white/20"
               data-testid="button-logout"
             >
               <LogOut className="w-5 h-5" />
