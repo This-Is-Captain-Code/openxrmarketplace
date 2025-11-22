@@ -150,10 +150,14 @@ export default function LicensePurchaseModal({
 
       console.log('Purchasing license with gameId:', numericGameId, 'price:', valueInWei.toString());
 
-      // Call purchaseLicense with value
+      // Call purchaseLicense with value and explicit gas settings
       const txResponse = await contract.purchaseLicense(
         ethers.toBigInt(numericGameId),
-        { value: valueInWei }
+        { 
+          value: valueInWei,
+          gasLimit: ethers.toBigInt(300000),
+          gasPrice: ethers.toBigInt('1000000000')
+        }
       );
 
       if (!txResponse || !txResponse.hash) {
