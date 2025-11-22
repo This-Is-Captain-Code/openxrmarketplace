@@ -155,35 +155,35 @@ export default function LicensePurchaseModal({
       console.log('Encoded data:', data);
       console.log('Signer:', signerAddress);
       
-      // Use provider's request method directly to avoid ethers.js parsing issues
+      // Send transaction via signer without waiting for receipt
+      let txResponse;
       try {
-        const txHash = await provider.request({
-          method: 'eth_sendTransaction',
-          params: [{
-            from: signerAddress,
-            to: GAME_LICENSING_CONFIG.contractAddress,
-            data: data,
-            value: valueInWei.toString().startsWith('0x') ? valueInWei.toString() : '0x' + valueInWei.toString(16)
-          }]
+        txResponse = await signer.sendTransaction({
+          to: GAME_LICENSING_CONFIG.contractAddress,
+          data: data,
+          value: valueInWei
+          // Don't set nonce, gas, gasPrice - let Keplr calculate these
         });
-
-        if (!txHash) {
-          throw new Error('Transaction failed to send');
-        }
-
-        console.log('Transaction hash:', txHash);
-
-        toast({
-          title: 'License purchased!',
-          description: `Transaction submitted`,
-        });
-
-        onPurchaseSuccess?.();
-        onOpenChange(false);
-      } catch (rpcError) {
-        console.error('RPC error:', rpcError);
-        throw rpcError;
+      } catch (sendError) {
+        console.error('Transaction send error:', sendError);
+        throw sendError;
       }
+
+      // Extract hash immediately - don't wait for receipt or try to parse response
+      const txHash = txResponse?.hash;
+      if (!txHash) {
+        throw new Error('Transaction failed - no hash received');
+      }
+
+      console.log('Transaction hash:', txHash);
+
+      toast({
+        title: 'License purchased!',
+        description: `Transaction submitted`,
+      });
+
+      onPurchaseSuccess?.();
+      onOpenChange(false);
     } catch (err) {
       console.error('Purchase error:', err);
 
