@@ -8,7 +8,7 @@ interface LensCarouselProps {
 
 export default function LensCarousel({ lenses, onLensSelect, currentLensId }: LensCarouselProps) {
   return (
-    <div className="absolute bottom-8 left-0 right-0 z-20 px-4 translate-y-5" data-testid="carousel-lenses">
+    <div className="absolute bottom-8 left-0 right-0 z-20 px-4 translate-y-7" data-testid="carousel-lenses">
       <div className="overflow-x-auto scrollbar-hide">
         <div className="flex gap-4 min-w-max pb-2">
           {lenses.map((lens) => {
@@ -22,7 +22,7 @@ export default function LensCarousel({ lenses, onLensSelect, currentLensId }: Le
                 className="flex-shrink-0 flex flex-col items-center gap-2 group"
                 aria-label={`Apply ${lens.displayName} lens`}
               >
-                <div className={`relative w-20 h-20 rounded-full overflow-hidden transition-all duration-200 ${
+                <div className={`relative w-15 h-15 rounded-full overflow-hidden transition-all duration-200 ${
                   isSelected 
                     ? 'ring-2 ring-primary shadow-lg' 
                     : 'opacity-40 group-hover:opacity-60'
