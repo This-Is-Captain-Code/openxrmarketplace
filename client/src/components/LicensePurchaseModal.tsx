@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { usePrivy } from '@privy-io/react-auth';
+import { usePrivy, useWalletProvider } from '@privy-io/react-auth';
 import { useToast } from '@/hooks/use-toast';
 import { ethers } from 'ethers';
 import { SAGA_CHAIN_CONFIG, GAME_LICENSING_CONFIG } from '@/lib/sagaChain';
@@ -21,7 +21,8 @@ export default function LicensePurchaseModal({
   onPurchaseSuccess,
   gameId = GAME_LICENSING_CONFIG.arLensesGameId,
 }: LicensePurchaseModalProps) {
-  const { user, getEmbeddedWallet } = usePrivy();
+  const { user } = usePrivy();
+  const provider = useWalletProvider();
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
 
@@ -35,16 +36,21 @@ export default function LicensePurchaseModal({
       return;
     }
 
+    if (!provider) {
+      toast({
+        title: 'Wallet provider not available',
+        description: 'Please ensure your wallet is properly connected',
+        variant: 'destructive',
+      });
+      return;
+    }
+
     try {
       setLoading(true);
       
-      const embeddedWallet = await getEmbeddedWallet();
-      if (!embeddedWallet) {
-        throw new Error('Embedded wallet not available');
-      }
-
-      const provider = new ethers.providers.JsonRpcProvider(SAGA_CHAIN_CONFIG.rpcUrl);
-      const signer = provider.getSigner();
+      // Create ethers provider and signer from the connected wallet provider
+      const ethersProvider = new ethers.providers.Web3Provider(provider);
+      const signer = ethersProvider.getSigner();
       
       const contract = new ethers.Contract(
         GAME_LICENSING_CONFIG.contractAddress,
@@ -54,6 +60,11 @@ export default function LicensePurchaseModal({
 
       const priceInWei = ethers.utils.parseEther(GAME_LICENSING_CONFIG.arLensesPrice);
       
+      toast({
+        title: 'Awaiting wallet confirmation...',
+        description: 'Please approve the transaction in your wallet',
+      });
+
       const tx = await contract.purchaseLicense(gameId, {
         value: priceInWei,
       });
@@ -74,11 +85,29 @@ export default function LicensePurchaseModal({
       onOpenChange(false);
     } catch (err) {
       console.error('Purchase failed:', err);
-      toast({
-        title: 'Purchase failed',
-        description: err instanceof Error ? err.message : 'Failed to purchase license',
-        variant: 'destructive',
-      });
+      
+      // Handle user rejection
+      if (err instanceof Error) {
+        if (err.message.includes('user rejected') || err.message.includes('User denied')) {
+          toast({
+            title: 'Transaction cancelled',
+            description: 'You cancelled the transaction',
+            variant: 'destructive',
+          });
+        } else {
+          toast({
+            title: 'Purchase failed',
+            description: err.message,
+            variant: 'destructive',
+          });
+        }
+      } else {
+        toast({
+          title: 'Purchase failed',
+          description: 'An unexpected error occurred',
+          variant: 'destructive',
+        });
+      }
     } finally {
       setLoading(false);
     }
@@ -117,7 +146,7 @@ export default function LicensePurchaseModal({
 
           <Button
             onClick={handlePurchase}
-            disabled={loading}
+            disabled={loading || !provider}
             className="w-full"
             size="lg"
           >
