@@ -16,12 +16,39 @@ export const useCameraKit = (
   useEffect(() => {
     let mounted = true;
     let timeoutId: NodeJS.Timeout;
+    let retryCount = 0;
+    const MAX_RETRIES = 5;
+    const RETRY_DELAY = 500;
     
     const init = async () => {
       try {
-        // Ensure refs are available (they might need a moment to be attached to DOM)
+        // Ensure refs are available and canvas is properly sized
         if (!containerRef.current || !canvasRef.current) {
-          throw new Error('Container or canvas reference not available');
+          // Canvas not rendered yet, retry after a delay
+          if (retryCount < MAX_RETRIES && mounted) {
+            console.log(`Canvas not yet rendered, retrying... (${retryCount + 1}/${MAX_RETRIES})`);
+            retryCount++;
+            timeoutId = setTimeout(init, RETRY_DELAY);
+          } else {
+            console.log('Canvas initialization timeout - canvas may not be rendered');
+          }
+          return;
+        }
+
+        // Verify canvas has dimensions (important for Camera Kit initialization)
+        const canvas = canvasRef.current;
+        if (canvas.width === 0 || canvas.height === 0) {
+          // Wait for canvas to have dimensions
+          await new Promise(resolve => {
+            const checkDimensions = () => {
+              if (canvas.width > 0 && canvas.height > 0) {
+                resolve(null);
+              } else {
+                requestAnimationFrame(checkDimensions);
+              }
+            };
+            checkDimensions();
+          });
         }
 
         const permission = await navigator.permissions.query({ 
@@ -57,8 +84,8 @@ export const useCameraKit = (
       }
     };
     
-    // Small delay to ensure refs are properly attached to DOM
-    timeoutId = setTimeout(init, 50);
+    // Initial delay to ensure refs are properly attached to DOM (especially on slower devices)
+    timeoutId = setTimeout(init, 1000);
     
     return () => {
       clearTimeout(timeoutId);
