@@ -8,6 +8,7 @@ import { LogOut, Lock } from 'lucide-react';
 import { useLicense } from '@/hooks/useLicense';
 import { GAME_LICENSING_CONFIG } from '@/lib/sagaChain';
 import lenzLogo from '@assets/generated_images/lenz.dev_circular_lens_icon_-_no_text.png';
+import lenzBackground from '@assets/generated_images/ar_camera_lens_product_background_-_abstract_modern.png';
 
 interface XRApp {
   id: string;
@@ -23,7 +24,7 @@ const xrApps: XRApp[] = [
     id: 'lenses',
     name: 'Lenz.dev',
     description: 'Transform your camera with stunning AR effects',
-    coverImage: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+    coverImage: `url(${lenzBackground})`,
     price: GAME_LICENSING_CONFIG.arLensesPrice,
     logo: lenzLogo,
   },
@@ -84,7 +85,9 @@ function HomeContent() {
                     background: app.coverImage,
                   }}
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
+                <div className="absolute inset-0" style={{
+                  background: 'linear-gradient(to top, rgba(0,0,0,1) 0%, rgba(0,0,0,0.2) 50%, rgba(0,0,0,0) 100%)'
+                }} />
                 <div className="absolute inset-0 flex flex-col justify-between p-6 text-white">
                   <div className="flex flex-col gap-4">
                     <div className="flex items-center gap-3 justify-between">
