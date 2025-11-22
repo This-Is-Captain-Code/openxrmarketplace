@@ -8,7 +8,7 @@ import { LogOut, Lock } from 'lucide-react';
 import { useLicense } from '@/hooks/useLicense';
 import { GAME_LICENSING_CONFIG } from '@/lib/sagaChain';
 import lenzLogo from '@assets/generated_images/lenz.dev_circular_lens_icon_-_no_text.png';
-import lenzBackground from '@assets/generated_images/ai_neural_network_face_filter_effects_-_digital_beauty_tech.png';
+import lenzBackground from '@assets/generated_images/people_enjoying_ar_snapchat_filters_-_red-orange_warm_tones.png';
 
 interface XRApp {
   id: string;
