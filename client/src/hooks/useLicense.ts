@@ -6,12 +6,17 @@ import gameABI from '@/lib/gameABI.json';
 import { mockLenses } from '@/pages/Marketplace';
 
 // Helper function to convert lens ID to numeric gameId - MUST MATCH LicensePurchaseModal
-// All lenses use gameId 1 (single game on contract with all AR lenses)
+// Each lens maps to a unique gameId (1-12) on the smart contract
+// Throws error if lensId is invalid to prevent bypass to gameId 1
 const getLensGameId = (lensId: string): number => {
-  return 1; // All lenses share the same gameId
+  const index = mockLenses.findIndex(lens => lens.id === lensId);
+  if (index === -1) {
+    throw new Error(`Invalid lens ID: ${lensId}. Lens not found in catalog.`);
+  }
+  return index + 1;
 };
 
-export function useLicense(lensId?: string, gameId: number = GAME_LICENSING_CONFIG.arLensesGameId) {
+export function useLicense(lensId: string) {
   const { user } = usePrivy();
   const [hasLicense, setHasLicense] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -20,6 +25,13 @@ export function useLicense(lensId?: string, gameId: number = GAME_LICENSING_CONF
 
   const checkLicense = useCallback(async () => {
     if (!user?.wallet?.address) {
+      setHasLicense(false);
+      return;
+    }
+
+    if (!lensId) {
+      console.error('useLicense: lensId is required');
+      setError('Lens ID is required');
       setHasLicense(false);
       return;
     }
@@ -33,8 +45,8 @@ export function useLicense(lensId?: string, gameId: number = GAME_LICENSING_CONF
         provider
       );
 
-      // Convert lensId to numeric gameId if provided, otherwise use gameId
-      const numericGameId = lensId ? getLensGameId(lensId) : gameId;
+      // Convert lensId to numeric gameId (required parameter)
+      const numericGameId = getLensGameId(lensId);
       
       // hasLicense expects (gameId: uint256, user: address)
       const owns = await contract.hasLicense(numericGameId, user.wallet.address);
@@ -47,11 +59,11 @@ export function useLicense(lensId?: string, gameId: number = GAME_LICENSING_CONF
     } finally {
       setLoading(false);
     }
-  }, [user?.wallet?.address, gameId, lensId]);
+  }, [user?.wallet?.address, lensId]);
 
   useEffect(() => {
     checkLicense();
-  }, [user?.wallet?.address, gameId, lensId, refreshTrigger, checkLicense]);
+  }, [user?.wallet?.address, lensId, refreshTrigger, checkLicense]);
 
   const refetch = useCallback(() => {
     setRefreshTrigger(prev => prev + 1);

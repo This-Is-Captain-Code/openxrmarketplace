@@ -90,11 +90,13 @@ Preferred communication style: Simple, everyday language.
 - Block Explorer: https://openxr-2763783314764000-1.sagaexplorer.io
 - Contract Address: 0x91C7B6f8905060D6aE711878020DB15E90C697E0
 - Native Token: XRT (18 decimals)
-- License Price: 2324 XRT per purchase
-- All 12 AR lenses share the same gameId (1) on the smart contract
-- Once purchased, all lenses become accessible (single purchase unlocks all)
+- License Price: 2324 XRT per lens
+- Each AR lens maps to a unique gameId (1-12) on the smart contract
+- Users must purchase each lens separately (individual licenses)
+- Total cost for all lenses: 27,888 XRT (12 lenses × 2324 XRT)
 - Wallet Integration: Keplr wallet for EVM transactions on Saga chain
-- Transaction Flow: User purchases license → Smart contract verifies payment → All lenses unlocked
+- Transaction Flow: User selects lens → Purchases license for that gameId → Smart contract verifies payment → Lens unlocked
+- Deployment: Contract owner must list games 2-12 using the deployment script in `scripts/deploy-games.js` (see DEPLOYMENT_INSTRUCTIONS.md)
 
 **Privy Authentication Service**
 - App ID: `cmhdsknrh003zjp0chko9z886` (stored in VITE_PRIVY_APP_ID)
@@ -138,13 +140,15 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
 
-### November 22, 2025 - Saga Blockchain Integration & License Purchase Fix
+### November 22, 2025 - Saga Blockchain Integration & Per-Lens Licensing
 - **CRITICAL FIX**: Updated Saga chain configuration from incorrect chainId 2763779114927000 to correct chainId 2763783314764000
 - Fixed RPC URL to point to correct Saga Chainlet where GameLicensing contract is deployed
-- Configured all 12 AR lenses to use shared gameId 1 on the smart contract
-- Single license purchase (2324 XRT) now unlocks all 12 AR lenses
+- Configured per-lens gameId mapping: each lens (01-12) maps to gameId (1-12)
+- Each AR lens requires separate purchase (2324 XRT per lens)
+- Created deployment script (`scripts/deploy-games.js`) for contract owner to list games 2-12
+- Provided comprehensive deployment instructions in DEPLOYMENT_INSTRUCTIONS.md
 - Added comprehensive balance checking and transaction logging for debugging
-- Fixed license verification to use numeric gameIds instead of string lens IDs
+- Fixed license verification to use numeric gameIds with index+1 mapping
 - Implemented proper error handling for insufficient balance and transaction failures
 - Added detailed console logging for transaction debugging (balance, gas costs, total costs)
 - Updated contract integration to use correct blockchain explorer and RPC endpoints

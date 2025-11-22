@@ -10,17 +10,21 @@ import { Loader2 } from 'lucide-react';
 import { mockLenses } from '@/pages/Marketplace';
 
 // Helper function to convert lens ID to numeric gameId
-// All lenses use gameId 1 (single game on contract with all AR lenses)
+// Each lens maps to a unique gameId (1-12) on the smart contract
+// Throws error if lensId is invalid to prevent bypass to gameId 1
 const getLensGameId = (lensId: string): number => {
-  return 1; // All lenses share the same gameId
+  const index = mockLenses.findIndex(lens => lens.id === lensId);
+  if (index === -1) {
+    throw new Error(`Invalid lens ID: ${lensId}. Lens not found in catalog.`);
+  }
+  return index + 1;
 };
 
 interface LicensePurchaseModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onPurchaseSuccess?: () => void;
-  gameId?: number;
-  lensId?: string;
+  lensId: string; // REQUIRED - each lens has unique gameId
   price?: number;
   title?: string;
 }
@@ -29,7 +33,6 @@ export default function LicensePurchaseModal({
   open,
   onOpenChange,
   onPurchaseSuccess,
-  gameId = GAME_LICENSING_CONFIG.arLensesGameId,
   lensId,
   price = GAME_LICENSING_CONFIG.arLensesPrice,
   title = 'AR Filter License',
@@ -165,9 +168,14 @@ export default function LicensePurchaseModal({
 
       // Encode the function call
       const iface = new ethers.Interface(gameABI);
-      const numericGameId = lensId ? getLensGameId(lensId) : gameId;
       
-      console.log('Encoding purchaseLicense with gameId:', numericGameId);
+      // Convert lensId to numeric gameId (required parameter)
+      if (!lensId) {
+        throw new Error('Lens ID is required for purchase');
+      }
+      const numericGameId = getLensGameId(lensId);
+      
+      console.log('Encoding purchaseLicense with lensId:', lensId, 'gameId:', numericGameId);
       const data = iface.encodeFunctionData('purchaseLicense', [numericGameId]);
       if (!data) {
         throw new Error('Failed to encode purchaseLicense function');

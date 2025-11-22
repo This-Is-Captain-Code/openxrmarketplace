@@ -7,6 +7,95 @@ import { useLicense } from '@/hooks/useLicense';
 import { mockLenses } from '@/pages/Marketplace';
 import { useState } from 'react';
 import LicensePurchaseModal from '@/components/LicensePurchaseModal';
+import { Lens } from '@/types/lens';
+
+// Component to handle individual lens card with license checking
+function LensCard({ 
+  lens, 
+  onPurchase 
+}: { 
+  lens: Lens; 
+  onPurchase: (lensId: string) => void;
+}) {
+  const [, setLocation] = useLocation();
+  const { hasLicense, loading } = useLicense(lens.id);
+
+  const handleClick = () => {
+    if (loading) return;
+    
+    if (hasLicense) {
+      setLocation(`/camera/${lens.id}`);
+    } else {
+      onPurchase(lens.id);
+    }
+  };
+
+  return (
+    <div 
+      key={lens.id} 
+      className="group cursor-pointer bg-gray-900/50 rounded-2xl overflow-hidden border border-gray-800 hover:border-gray-700 transition-all duration-200 hover:scale-105"
+      data-testid={`card-lens-${lens.id}`}
+      onClick={handleClick}
+    >
+      {/* Image Section */}
+      <div className="relative h-56 overflow-hidden rounded-t-2xl">
+        <img
+          src={lens.coverImage}
+          alt={lens.displayName}
+          className="w-full h-full object-cover"
+        />
+        
+        {/* Hover Overlay with Button */}
+        <div className="absolute inset-0 bg-black/70 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center">
+          <Button
+            className="font-semibold"
+            onClick={(e) => {
+              e.stopPropagation();
+              handleClick();
+            }}
+            style={{ backgroundColor: '#C1FF72', color: '#000' }}
+            data-testid={`button-lens-${lens.id}`}
+            disabled={loading}
+          >
+            {loading ? 'Checking...' : hasLicense ? 'Use Filter' : 'Purchase'}
+          </Button>
+        </div>
+      </div>
+
+      {/* Content Section */}
+      <div className="p-5 space-y-4">
+        {/* Title */}
+        <h3 
+          className="text-xl font-bold text-white leading-tight" 
+          data-testid={`text-lens-name-${lens.id}`}
+        >
+          {lens.displayName}
+        </h3>
+
+        {/* Filter Type with Badge */}
+        <div className="flex items-center justify-between">
+          <span className="text-sm text-gray-400">AR Filter</span>
+          <div className="h-8 w-8 rounded-full border-2 border-gray-600 flex items-center justify-center" style={{ borderColor: hasLicense ? '#C1FF72' : '#4b5563' }}>
+            <span className="text-xs font-bold" style={{ color: hasLicense ? '#C1FF72' : '#9ca3af' }}>
+              {hasLicense ? '✓' : lens.name.slice(0, 1)}
+            </span>
+          </div>
+        </div>
+
+        {/* Divider */}
+        <div className="h-px bg-gray-800"></div>
+
+        {/* Price Section */}
+        <div className="space-y-2">
+          <span className="text-xs text-gray-500 uppercase tracking-widest font-semibold block">Price</span>
+          <span className="text-base font-bold" style={{ color: '#C1FF72' }}>
+            {hasLicense ? '✓ Owned' : `${lens.price} XRT`}
+          </span>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 function HomeContent() {
   const [, setLocation] = useLocation();
@@ -14,17 +103,9 @@ function HomeContent() {
   const [selectedLensForPurchase, setSelectedLensForPurchase] = useState<string | null>(null);
   const [showPurchaseModal, setShowPurchaseModal] = useState(false);
 
-  const handleLensClick = (lensId: string) => {
-    // Check if user has license for this lens
-    const useLicenseHook = useLicense(lensId);
-    if (useLicenseHook.hasLicense) {
-      // Go directly to camera with the lens
-      setLocation(`/camera/${lensId}`);
-    } else {
-      // Show purchase modal
-      setSelectedLensForPurchase(lensId);
-      setShowPurchaseModal(true);
-    }
+  const handlePurchase = (lensId: string) => {
+    setSelectedLensForPurchase(lensId);
+    setShowPurchaseModal(true);
   };
 
   return (
@@ -66,91 +147,9 @@ function HomeContent() {
         </div>
 
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6">
-          {mockLenses.map((lens) => {
-            // Use hook to check license for each lens
-            // eslint-disable-next-line react-hooks/rules-of-hooks
-            const { hasLicense } = useLicense(lens.id);
-            
-            return (
-              <div 
-                key={lens.id} 
-                className="group cursor-pointer bg-gray-900/50 rounded-2xl overflow-hidden border border-gray-800 hover:border-gray-700 transition-all duration-200 hover:scale-105"
-                data-testid={`card-lens-${lens.id}`}
-                onClick={() => hasLicense && setLocation(`/camera/${lens.id}`)}
-              >
-                {/* Image Section */}
-                <div className="relative h-56 overflow-hidden rounded-t-2xl">
-                  <img
-                    src={lens.coverImage}
-                    alt={lens.displayName}
-                    className="w-full h-full object-cover"
-                  />
-                  
-                  {/* Hover Overlay with Button */}
-                  <div className="absolute inset-0 bg-black/70 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center">
-                    {hasLicense ? (
-                      <Button
-                        className="font-semibold"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setLocation(`/camera/${lens.id}`);
-                        }}
-                        style={{ backgroundColor: '#C1FF72', color: '#000' }}
-                        data-testid={`button-lens-use-${lens.id}`}
-                      >
-                        Use Filter
-                      </Button>
-                    ) : (
-                      <Button
-                        className="font-semibold"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setSelectedLensForPurchase(lens.id);
-                          setShowPurchaseModal(true);
-                        }}
-                        style={{ backgroundColor: '#C1FF72', color: '#000' }}
-                        data-testid={`button-lens-purchase-${lens.id}`}
-                      >
-                        Purchase
-                      </Button>
-                    )}
-                  </div>
-                </div>
-
-                {/* Content Section */}
-                <div className="p-5 space-y-4">
-                  {/* Title */}
-                  <h3 
-                    className="text-xl font-bold text-white leading-tight" 
-                    data-testid={`text-lens-name-${lens.id}`}
-                  >
-                    {lens.displayName}
-                  </h3>
-
-                  {/* Filter Type with Badge */}
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-gray-400">AR Filter</span>
-                    <div className="h-8 w-8 rounded-full border-2 border-gray-600 flex items-center justify-center" style={{ borderColor: hasLicense ? '#C1FF72' : '#4b5563' }}>
-                      <span className="text-xs font-bold" style={{ color: hasLicense ? '#C1FF72' : '#9ca3af' }}>
-                        {hasLicense ? '✓' : lens.name.slice(0, 1)}
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Divider */}
-                  <div className="h-px bg-gray-800"></div>
-
-                  {/* Price Section */}
-                  <div className="space-y-2">
-                    <span className="text-xs text-gray-500 uppercase tracking-widest font-semibold block">Price</span>
-                    <span className="text-base font-bold" style={{ color: '#C1FF72' }}>
-                      {hasLicense ? '✓ Owned' : `${lens.price} XRT`}
-                    </span>
-                  </div>
-                </div>
-              </div>
-            );
-          })}
+          {mockLenses.map((lens) => (
+            <LensCard key={lens.id} lens={lens} onPurchase={handlePurchase} />
+          ))}
         </div>
       </main>
 

@@ -1,3 +1,4 @@
+import { useState, useCallback, useEffect } from 'react';
 import { useLocation } from 'wouter';
 import AuthGuard from '@/components/AuthGuard';
 import { Button } from '@/components/ui/button';
@@ -5,17 +6,40 @@ import { usePrivy } from '@privy-io/react-auth';
 import { LogOut, ArrowLeft } from 'lucide-react';
 import { useLicense } from '@/hooks/useLicense';
 import { mockLenses } from '@/pages/Marketplace';
+import { Lens } from '@/types/lens';
+
+// Component to check individual lens ownership
+function LensOwnershipChecker({ lens, onOwned }: { lens: Lens; onOwned: (lens: Lens) => void }) {
+  const { hasLicense, loading } = useLicense(lens.id);
+  
+  useEffect(() => {
+    if (!loading && hasLicense) {
+      onOwned(lens);
+    }
+  }, [hasLicense, loading, lens, onOwned]);
+  
+  return null;
+}
 
 function LibraryContent() {
   const [, setLocation] = useLocation();
   const { logout } = usePrivy();
-
-  // Filter lenses that user owns
-  const ownedLenses = mockLenses.filter(lens => {
-    // eslint-disable-next-line react-hooks/rules-of-hooks
-    const { hasLicense } = useLicense(lens.id);
-    return hasLicense;
-  });
+  const [ownedLenses, setOwnedLenses] = useState<Lens[]>([]);
+  const [checkComplete, setCheckComplete] = useState(false);
+  
+  // Track which lenses are owned
+  const handleLensOwned = useCallback((lens: Lens) => {
+    setOwnedLenses(prev => {
+      if (prev.find(l => l.id === lens.id)) return prev;
+      return [...prev, lens];
+    });
+  }, []);
+  
+  useEffect(() => {
+    // Mark check as complete after a short delay
+    const timer = setTimeout(() => setCheckComplete(true), 1000);
+    return () => clearTimeout(timer);
+  }, []);
 
   return (
     <div className="min-h-screen bg-background dark">
@@ -48,14 +72,23 @@ function LibraryContent() {
       </header>
 
       <main className="container px-4 py-8">
+        {/* Hidden ownership checkers */}
+        {mockLenses.map(lens => (
+          <LensOwnershipChecker key={lens.id} lens={lens} onOwned={handleLensOwned} />
+        ))}
+        
         <div className="mb-8">
           <h1 className="text-3xl font-bold mb-2 text-white">My AR Filters</h1>
           <p className="text-muted-foreground">
-            {ownedLenses.length} filter{ownedLenses.length !== 1 ? 's' : ''} in your collection
+            {checkComplete ? (
+              `${ownedLenses.length} filter${ownedLenses.length !== 1 ? 's' : ''} in your collection`
+            ) : (
+              'Loading your filters...'
+            )}
           </p>
         </div>
 
-        {ownedLenses.length === 0 ? (
+        {checkComplete && ownedLenses.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-16">
             <p className="text-gray-400 text-lg mb-6">No filters owned yet</p>
             <Button
