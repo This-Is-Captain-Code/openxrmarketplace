@@ -8,12 +8,14 @@ import { SAGA_CHAIN_CONFIG } from "./lib/sagaChain";
 import Home from "@/pages/Home";
 import CameraView from "@/pages/CameraView";
 import Marketplace from "@/pages/Marketplace";
+import Library from "@/pages/Library";
 import NotFound from "@/pages/not-found";
 
 function Router() {
   return (
     <Switch>
       <Route path="/" component={Home} />
+      <Route path="/library" component={Library} />
       <Route path="/lenses" component={Marketplace} />
       <Route path="/app/:appId" component={Marketplace} />
       <Route path="/camera/:lensId" component={CameraView} />
