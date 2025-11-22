@@ -67,52 +67,51 @@ function LibraryContent() {
             </Button>
           </div>
         ) : (
-          <div className="flex flex-wrap gap-4 justify-start">
+          <div className="flex flex-wrap gap-6 justify-start">
             {ownedLenses.map((lens) => (
-              <div 
-                key={lens.id} 
-                className="group cursor-pointer" 
-                onClick={() => setLocation(`/camera/${lens.id}`)}
-              >
-                {/* Compact Image Card */}
-                <div
-                  className="hover-elevate active-elevate-2 overflow-hidden rounded-xl relative transition-all"
-                  style={{ width: '120px', height: '150px' }}
-                  data-testid={`card-library-${lens.id}`}
-                >
-                  <img
-                    src={lens.coverImage}
-                    alt={lens.displayName}
-                    className="w-full h-full object-cover"
-                  />
-                  {/* Badge positioned on image - top right */}
-                  <div className="absolute top-2 right-2 z-10">
-                    <span className="inline-block font-bold text-xs px-2 py-0.5 rounded" style={{ backgroundColor: '#C1FF72', color: '#000' }}>
-                      {lens.name.split(' ')[1] || lens.name}
-                    </span>
-                  </div>
+              <div key={lens.id} className="flex flex-col items-center">
+                {/* Gray background container with padding */}
+                <div className="bg-gray-800/50 rounded-2xl p-3 mb-3 group cursor-pointer transition-all duration-200 hover:scale-105" onClick={() => setLocation(`/camera/${lens.id}`)}>
+                  {/* Compact Image Card */}
+                  <div
+                    className="overflow-hidden rounded-xl relative"
+                    style={{ width: '150px', height: '150px' }}
+                    data-testid={`card-library-${lens.id}`}
+                  >
+                    <img
+                      src={lens.coverImage}
+                      alt={lens.displayName}
+                      className="w-full h-full object-cover"
+                    />
+                    {/* Badge positioned on image - top right */}
+                    <div className="absolute top-2 right-2 z-10">
+                      <span className="inline-block font-bold text-xs px-2 py-0.5 rounded" style={{ backgroundColor: '#C1FF72', color: '#000' }}>
+                        {lens.name.split(' ')[1] || lens.name}
+                      </span>
+                    </div>
 
-                  {/* Hover Overlay with Button */}
-                  <div className="absolute inset-0 bg-black/70 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex flex-col items-center justify-center gap-2 p-2">
-                    <Button
-                      className="w-full text-xs h-7 font-semibold"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setLocation(`/camera/${lens.id}`);
-                      }}
-                      style={{ backgroundColor: '#C1FF72', color: '#000' }}
-                      data-testid={`button-library-use-${lens.id}`}
-                    >
-                      Use
-                    </Button>
+                    {/* Hover Overlay with Button */}
+                    <div className="absolute inset-0 bg-black/70 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex flex-col items-center justify-center gap-2 p-2">
+                      <Button
+                        className="w-full text-xs h-7 font-semibold"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setLocation(`/camera/${lens.id}`);
+                        }}
+                        style={{ backgroundColor: '#C1FF72', color: '#000' }}
+                        data-testid={`button-library-use-${lens.id}`}
+                      >
+                        Use
+                      </Button>
+                    </div>
                   </div>
                 </div>
 
                 {/* Title Below Card */}
                 <h4 
-                  className="text-xs font-semibold text-white mt-2 truncate text-center" 
+                  className="text-xs font-semibold text-white truncate text-center" 
                   data-testid={`text-library-name-${lens.id}`}
-                  style={{ width: '120px' }}
+                  style={{ width: '150px' }}
                 >
                   {lens.displayName}
                 </h4>
