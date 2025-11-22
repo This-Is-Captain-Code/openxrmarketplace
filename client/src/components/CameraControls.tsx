@@ -66,7 +66,7 @@ export default function CameraControls({
 
   return (
     <>
-      <div className="fixed bottom-32 left-0 right-0 z-40 px-4">
+      <div className="fixed bottom-16 left-0 right-0 z-40 px-4">
         <div className="max-w-md mx-auto flex items-center justify-between">
           <Button
             data-testid="button-user-profile"
