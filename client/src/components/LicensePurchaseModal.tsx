@@ -10,9 +10,9 @@ import { Loader2 } from 'lucide-react';
 import { mockLenses } from '@/pages/Marketplace';
 
 // Helper function to convert lens ID to numeric gameId
+// All lenses use gameId 1 (single game on contract with all AR lenses)
 const getLensGameId = (lensId: string): number => {
-  const index = mockLenses.findIndex(lens => lens.id === lensId);
-  return index !== -1 ? index + 1 : parseInt(lensId) || 1;
+  return 1; // All lenses share the same gameId
 };
 
 interface LicensePurchaseModalProps {

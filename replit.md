@@ -83,6 +83,19 @@ Preferred communication style: Simple, everyday language.
 - Bootstrap initialization pattern for Camera Kit SDK
 - Real-time canvas rendering for AR effects
 
+**Saga Blockchain Integration (GameLicensing Contract)**
+- Chain: Saga Chainlet (OpenXR)
+- Chain ID: 2763783314764000
+- RPC URL: https://openxr-2763783314764000-1.jsonrpc.sagarpc.io
+- Block Explorer: https://openxr-2763783314764000-1.sagaexplorer.io
+- Contract Address: 0x91C7B6f8905060D6aE711878020DB15E90C697E0
+- Native Token: XRT (18 decimals)
+- License Price: 2324 XRT per purchase
+- All 12 AR lenses share the same gameId (1) on the smart contract
+- Once purchased, all lenses become accessible (single purchase unlocks all)
+- Wallet Integration: Keplr wallet for EVM transactions on Saga chain
+- Transaction Flow: User purchases license → Smart contract verifies payment → All lenses unlocked
+
 **Privy Authentication Service**
 - App ID: `cmhdsknrh003zjp0chko9z886` (stored in VITE_PRIVY_APP_ID)
 - App Secret stored securely in PRIVY_APP_SECRET environment variable
@@ -124,6 +137,17 @@ Preferred communication style: Simple, everyday language.
 - Permission-based progressive enhancement
 
 ## Recent Changes
+
+### November 22, 2025 - Saga Blockchain Integration & License Purchase Fix
+- **CRITICAL FIX**: Updated Saga chain configuration from incorrect chainId 2763779114927000 to correct chainId 2763783314764000
+- Fixed RPC URL to point to correct Saga Chainlet where GameLicensing contract is deployed
+- Configured all 12 AR lenses to use shared gameId 1 on the smart contract
+- Single license purchase (2324 XRT) now unlocks all 12 AR lenses
+- Added comprehensive balance checking and transaction logging for debugging
+- Fixed license verification to use numeric gameIds instead of string lens IDs
+- Implemented proper error handling for insufficient balance and transaction failures
+- Added detailed console logging for transaction debugging (balance, gas costs, total costs)
+- Updated contract integration to use correct blockchain explorer and RPC endpoints
 
 ### November 22, 2025 - Netflix-Style UI Redesign & Responsive Design
 - Redesigned lens selection page with Netflix-style horizontal cards (16:9 aspect ratio)
