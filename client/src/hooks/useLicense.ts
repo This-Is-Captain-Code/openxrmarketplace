@@ -3,6 +3,13 @@ import { usePrivy } from '@privy-io/react-auth';
 import { ethers } from 'ethers';
 import { SAGA_CHAIN_CONFIG, GAME_LICENSING_CONFIG } from '@/lib/sagaChain';
 import gameABI from '@/lib/gameABI.json';
+import { mockLenses } from '@/pages/Marketplace';
+
+// Helper function to convert lens ID to numeric gameId - MUST MATCH LicensePurchaseModal
+const getLensGameId = (lensId: string): number => {
+  const index = mockLenses.findIndex(lens => lens.id === lensId);
+  return index !== -1 ? index + 1 : parseInt(lensId) || 1;
+};
 
 export function useLicense(lensId?: string, gameId: number = GAME_LICENSING_CONFIG.arLensesGameId) {
   const { user } = usePrivy();
@@ -26,9 +33,11 @@ export function useLicense(lensId?: string, gameId: number = GAME_LICENSING_CONF
         provider
       );
 
-      // If lensId is provided, check for that specific lens; otherwise check for app license
-      const licenseKeyToCheck = lensId || gameId.toString();
-      const owns = await contract.hasLicense(licenseKeyToCheck, user.wallet.address);
+      // Convert lensId to numeric gameId if provided, otherwise use gameId
+      const numericGameId = lensId ? getLensGameId(lensId) : gameId;
+      
+      // hasLicense expects (gameId: uint256, user: address)
+      const owns = await contract.hasLicense(numericGameId, user.wallet.address);
       setHasLicense(owns);
       setError(null);
     } catch (err) {

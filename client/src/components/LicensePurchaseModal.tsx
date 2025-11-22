@@ -138,25 +138,39 @@ export default function LicensePurchaseModal({
       // Encode the function call
       const iface = new ethers.Interface(gameABI);
       const numericGameId = lensId ? getLensGameId(lensId) : gameId;
+      
+      console.log('Encoding purchaseLicense with gameId:', numericGameId);
       const data = iface.encodeFunctionData('purchaseLicense', [numericGameId]);
       if (!data) {
-        throw new Error('Failed to encode function');
+        throw new Error('Failed to encode purchaseLicense function');
       }
 
-      // Parse value
+      // Parse price in Wei - user provides price in XRT tokens
       const priceStr = String(price);
       const valueInWei = ethers.parseEther(priceStr);
+      
+      console.log('Price in XRT:', priceStr);
+      console.log('Value in Wei:', valueInWei.toString());
+      console.log('Encoded data:', data);
 
-      // Build transaction with fixed gas params (standard values for contract call)
+      // Build transaction with fixed gas params
       const txData = {
         to: GAME_LICENSING_CONFIG.contractAddress,
         data: data,
         value: valueInWei,
-        gasLimit: ethers.toBigInt(300000), // Fixed gas limit for contract call
-        gasPrice: ethers.toBigInt('1000000000'), // 1 gwei - standard gas price
+        from: signerAddress,
+        gasLimit: ethers.toBigInt(300000),
+        gasPrice: ethers.toBigInt('1000000000'),
       };
 
-      console.log('Sending transaction:', txData);
+      console.log('Transaction data:', {
+        to: txData.to,
+        from: txData.from,
+        value: txData.value.toString(),
+        gasLimit: txData.gasLimit.toString(),
+        gasPrice: txData.gasPrice.toString(),
+        data: txData.data,
+      });
 
       // Send transaction using the signer
       const txResponse = await signer.sendTransaction(txData);
