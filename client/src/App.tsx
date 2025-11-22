@@ -34,7 +34,6 @@ function App() {
       appId={appId}
       config={{
         appearance: {
-          theme: "dark",
           accentColor: "#C1FF72",
         },
         loginMethods: ["email", "wallet", "google"],
