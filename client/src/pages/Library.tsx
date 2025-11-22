@@ -67,7 +67,7 @@ function LibraryContent() {
             </Button>
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-6">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6">
             {ownedLenses.map((lens) => (
               <div 
                 key={lens.id} 
@@ -76,7 +76,7 @@ function LibraryContent() {
                 onClick={() => setLocation(`/camera/${lens.id}`)}
               >
                 {/* Image Section */}
-                <div className="relative h-64 overflow-hidden rounded-t-2xl">
+                <div className="relative h-80 overflow-hidden rounded-t-2xl">
                   <img
                     src={lens.coverImage}
                     alt={lens.displayName}

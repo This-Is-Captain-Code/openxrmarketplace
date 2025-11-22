@@ -65,7 +65,7 @@ function HomeContent() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-6">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6">
           {mockLenses.map((lens) => {
             // Use hook to check license for each lens
             // eslint-disable-next-line react-hooks/rules-of-hooks
@@ -79,7 +79,7 @@ function HomeContent() {
                 onClick={() => hasLicense && setLocation(`/camera/${lens.id}`)}
               >
                 {/* Image Section */}
-                <div className="relative h-64 overflow-hidden rounded-t-2xl">
+                <div className="relative h-80 overflow-hidden rounded-t-2xl">
                   <img
                     src={lens.coverImage}
                     alt={lens.displayName}
