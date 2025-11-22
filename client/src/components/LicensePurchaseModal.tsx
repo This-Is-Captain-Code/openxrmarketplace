@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { usePrivy, useWallets } from '@privy-io/react-auth';
+import { usePrivy } from '@privy-io/react-auth';
 import { useToast } from '@/hooks/use-toast';
 import { ethers } from 'ethers';
 import { SAGA_CHAIN_CONFIG, GAME_LICENSING_CONFIG } from '@/lib/sagaChain';
@@ -22,9 +22,53 @@ export default function LicensePurchaseModal({
   gameId = GAME_LICENSING_CONFIG.arLensesGameId,
 }: LicensePurchaseModalProps) {
   const { user } = usePrivy();
-  const { wallets } = useWallets();
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
+
+  const switchToSagaChain = async (provider: any) => {
+    try {
+      // Check current chain
+      const chainId = await provider.request({ method: 'eth_chainId' });
+      const expectedChainId = `0x${SAGA_CHAIN_CONFIG.networkId.toString(16)}`;
+      
+      if (chainId === expectedChainId) {
+        return; // Already on correct chain
+      }
+
+      // Try to switch chain
+      try {
+        await provider.request({
+          method: 'wallet_switchEthereumChain',
+          params: [{ chainId: expectedChainId }],
+        });
+      } catch (switchErr: any) {
+        // If chain doesn't exist, add it
+        if (switchErr.code === 4902) {
+          await provider.request({
+            method: 'wallet_addEthereumChain',
+            params: [
+              {
+                chainId: expectedChainId,
+                chainName: 'Saga - openxr',
+                rpcUrls: [SAGA_CHAIN_CONFIG.rpcUrl],
+                nativeCurrency: {
+                  name: 'XRT',
+                  symbol: 'XRT',
+                  decimals: 18,
+                },
+                blockExplorerUrls: [SAGA_CHAIN_CONFIG.blockExplorer],
+              },
+            ],
+          });
+        } else {
+          throw switchErr;
+        }
+      }
+    } catch (err) {
+      console.error('Chain switch error:', err);
+      throw new Error(`Failed to switch to Saga chain: ${err instanceof Error ? err.message : String(err)}`);
+    }
+  };
 
   const handlePurchase = async () => {
     if (!user?.wallet?.address) {
@@ -39,57 +83,75 @@ export default function LicensePurchaseModal({
     try {
       setLoading(true);
 
-      // Get the active wallet from Privy
-      const activeWallet = wallets.find(w => w.address === user.wallet?.address);
-      if (!activeWallet) {
-        throw new Error('Wallet not found');
+      const w = window as any;
+      if (!w.ethereum) {
+        throw new Error('Ethereum provider not found. Please ensure your wallet is connected.');
       }
 
-      // Switch to Saga chain
-      try {
-        await activeWallet.switchChain(SAGA_CHAIN_CONFIG.networkId);
-      } catch (chainErr) {
-        console.warn('Chain switch failed, continuing anyway:', chainErr);
-      }
+      // Switch to Saga chain first
+      await switchToSagaChain(w.ethereum);
 
-      // Get the Ethereum provider from the wallet
-      const provider = await activeWallet.getEthereumProvider();
-      if (!provider) {
-        throw new Error('Could not get wallet provider - please ensure your wallet is properly connected');
-      }
+      // Create provider and signer
+      const provider = new ethers.BrowserProvider(w.ethereum);
+      const signer = await provider.getSigner();
 
-      // Create ethers provider and signer
-      const ethersProvider = new ethers.BrowserProvider(provider);
-      const signer = await ethersProvider.getSigner();
+      // Verify the signer address matches the connected wallet
+      const signerAddress = await signer.getAddress();
+      if (signerAddress.toLowerCase() !== user.wallet.address.toLowerCase()) {
+        throw new Error('Wallet address mismatch. Please switch to your connected wallet.');
+      }
 
       toast({
         title: 'Awaiting wallet confirmation...',
         description: 'Please approve the transaction in your wallet',
       });
 
-      // Create contract instance
+      // Create contract instance with signer
       const contract = new ethers.Contract(
         GAME_LICENSING_CONFIG.contractAddress,
         gameABI,
         signer
       );
 
-      const priceInWei = ethers.parseEther(GAME_LICENSING_CONFIG.arLensesPrice);
+      // Parse price
+      let priceInWei;
+      try {
+        priceInWei = ethers.parseEther(GAME_LICENSING_CONFIG.arLensesPrice);
+      } catch (parseErr) {
+        throw new Error(`Failed to parse price: ${parseErr instanceof Error ? parseErr.message : String(parseErr)}`);
+      }
 
-      // Send transaction
-      const tx = await contract.purchaseLicense(gameId, {
-        value: priceInWei,
-      });
+      // Call contract method
+      let tx;
+      try {
+        tx = await contract.purchaseLicense(gameId, {
+          value: priceInWei,
+        });
+      } catch (contractErr: any) {
+        console.error('Contract call error:', contractErr);
+        throw new Error(`Contract call failed: ${contractErr.message || String(contractErr)}`);
+      }
+
+      if (!tx) {
+        throw new Error('Transaction failed to initialize');
+      }
 
       toast({
         title: 'Processing payment...',
-        description: 'Your transaction is being processed on Saga',
+        description: 'Your transaction is being processed',
       });
 
-      const receipt = await tx.wait();
+      // Wait for receipt with proper error handling
+      let receipt;
+      try {
+        receipt = await tx.wait(1);
+      } catch (waitErr: any) {
+        console.error('Transaction wait error:', waitErr);
+        throw new Error(`Transaction failed: ${waitErr.message || String(waitErr)}`);
+      }
 
       if (!receipt) {
-        throw new Error('Transaction failed - no receipt received');
+        throw new Error('Transaction receipt not received');
       }
 
       toast({
