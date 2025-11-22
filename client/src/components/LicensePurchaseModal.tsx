@@ -112,32 +112,10 @@ export default function LicensePurchaseModal({
         description: 'Please approve the transaction in your Keplr wallet',
       });
 
-      // Create ethers provider from Keplr
-      const ethersProvider = new ethers.BrowserProvider(provider);
-      const signer = await ethersProvider.getSigner();
-      
-      if (!signer) {
-        throw new Error('Failed to get signer from Keplr');
-      }
-
-      const signerAddress = await signer.getAddress();
+      // Use the raw Keplr provider directly without ethers.js wrapping
+      const signerAddress = user.wallet.address;
       if (!signerAddress) {
-        throw new Error('Failed to get address from signer');
-      }
-
-      if (signerAddress.toLowerCase() !== user.wallet.address.toLowerCase()) {
-        throw new Error(`Address mismatch`);
-      }
-
-      // Verify network - skip if chainId check fails to avoid BigInt conversion issues
-      try {
-        const network = await ethersProvider.getNetwork();
-        const expectedChainId = SAGA_CHAIN_CONFIG.networkId;
-        if (network.chainId !== expectedChainId) {
-          console.warn(`Network mismatch: expected ${expectedChainId}, got ${network.chainId}`);
-        }
-      } catch (networkError) {
-        console.warn('Could not verify network:', networkError);
+        throw new Error('Failed to get address from user');
       }
 
       const numericGameId = lensId ? getLensGameId(lensId) : gameId;
@@ -155,8 +133,7 @@ export default function LicensePurchaseModal({
       // Convert BigInt to hex string
       const valueHex = valueInWei === 0n ? '0x0' : '0x' + valueInWei.toString(16);
 
-      // Send transaction using Keplr's raw provider request
-      // IMPORTANT: Don't let ethers.js parse the response - that's what causes the BigNumberish error
+      // Send transaction and let Keplr calculate gas/nonce
       const txHash = await new Promise<string>((resolve, reject) => {
         provider.request({
           method: 'eth_sendTransaction',
@@ -165,9 +142,9 @@ export default function LicensePurchaseModal({
             to: GAME_LICENSING_CONFIG.contractAddress,
             data: data,
             value: valueHex
+            // Don't include nonce - let Keplr calculate it
           }]
         }).then((result: any) => {
-          // result is the transaction hash string from Keplr
           if (!result || typeof result !== 'string') {
             reject(new Error('Invalid response from wallet'));
             return;
