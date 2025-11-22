@@ -4,7 +4,7 @@ import { ethers } from 'ethers';
 import { SAGA_CHAIN_CONFIG, GAME_LICENSING_CONFIG } from '@/lib/sagaChain';
 import gameABI from '@/lib/gameABI.json';
 
-export function useLicense(gameId: number = GAME_LICENSING_CONFIG.arLensesGameId) {
+export function useLicense(lensId?: string, gameId: number = GAME_LICENSING_CONFIG.arLensesGameId) {
   const { user } = usePrivy();
   const [hasLicense, setHasLicense] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -26,7 +26,9 @@ export function useLicense(gameId: number = GAME_LICENSING_CONFIG.arLensesGameId
         provider
       );
 
-      const owns = await contract.hasLicense(gameId, user.wallet.address);
+      // If lensId is provided, check for that specific lens; otherwise check for app license
+      const licenseKeyToCheck = lensId || gameId.toString();
+      const owns = await contract.hasLicense(licenseKeyToCheck, user.wallet.address);
       setHasLicense(owns);
       setError(null);
     } catch (err) {
@@ -36,11 +38,11 @@ export function useLicense(gameId: number = GAME_LICENSING_CONFIG.arLensesGameId
     } finally {
       setLoading(false);
     }
-  }, [user?.wallet?.address, gameId]);
+  }, [user?.wallet?.address, gameId, lensId]);
 
   useEffect(() => {
     checkLicense();
-  }, [user?.wallet?.address, gameId, refreshTrigger, checkLicense]);
+  }, [user?.wallet?.address, gameId, lensId, refreshTrigger, checkLicense]);
 
   const refetch = useCallback(() => {
     setRefreshTrigger(prev => prev + 1);

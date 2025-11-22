@@ -6,40 +6,26 @@ import { Button } from '@/components/ui/button';
 import { usePrivy } from '@privy-io/react-auth';
 import { LogOut, Lock } from 'lucide-react';
 import { useLicense } from '@/hooks/useLicense';
-import { GAME_LICENSING_CONFIG } from '@/lib/sagaChain';
-import lenzLogo from '@assets/generated_images/lenz.dev_circular_lens_icon_-_red-orange_gradient.png';
-import lenzBackground from '@assets/generated_images/people_enjoying_ar_snapchat_filters_-_red-orange_warm_tones.png';
-
-interface XRApp {
-  id: string;
-  name: string;
-  description: string;
-  coverImage: string;
-  price?: string;
-  logo?: string;
-}
-
-const xrApps: XRApp[] = [
-  {
-    id: 'lenses',
-    name: 'Lenz.dev',
-    description: 'Transform your camera with stunning AR effects',
-    coverImage: `url(${lenzBackground})`,
-    price: GAME_LICENSING_CONFIG.arLensesPrice,
-    logo: lenzLogo,
-  },
-];
+import { mockLenses } from '@/pages/Marketplace';
+import { useState } from 'react';
+import LicensePurchaseModal from '@/components/LicensePurchaseModal';
 
 function HomeContent() {
   const [, setLocation] = useLocation();
   const { logout } = usePrivy();
-  const { hasLicense } = useLicense();
+  const [selectedLensForPurchase, setSelectedLensForPurchase] = useState<string | null>(null);
+  const [showPurchaseModal, setShowPurchaseModal] = useState(false);
 
-  const handleAppClick = (appId: string) => {
-    if (appId === 'lenses') {
-      setLocation('/camera');
+  const handleLensClick = (lensId: string) => {
+    // Check if user has license for this lens
+    const useLicenseHook = useLicense(lensId);
+    if (useLicenseHook.hasLicense) {
+      // Go directly to camera with the lens
+      setLocation(`/camera/${lensId}`);
     } else {
-      setLocation(`/app/${appId}`);
+      // Show purchase modal
+      setSelectedLensForPurchase(lensId);
+      setShowPurchaseModal(true);
     }
   };
 
@@ -64,69 +50,81 @@ function HomeContent() {
 
       <main className="container px-4 py-8">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold mb-2 text-white">XR Applications</h1>
+          <h1 className="text-3xl font-bold mb-2 text-white">AR Filters</h1>
           <p className="text-muted-foreground">
-            Explore immersive experiences powered by Snap Camera Kit
+            Unlock stunning AR effects with individual purchases
           </p>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {xrApps.map((app) => (
-            <Card
-              key={app.id}
-              className="hover-elevate active-elevate-2 cursor-pointer overflow-hidden border-0 h-full"
-              onClick={() => handleAppClick(app.id)}
-              data-testid={`card-app-${app.id}`}
-            >
-              <CardContent className="p-0 relative h-96">
-                <div
-                  className="absolute inset-0 w-full h-full"
-                  style={{
-                    background: app.coverImage,
-                    backgroundSize: 'cover',
-                    backgroundPosition: 'center',
-                  }}
-                />
-                <div className="absolute inset-0" style={{
-                  background: 'linear-gradient(to top, rgba(0,0,0,1) 0%, rgba(0,0,0,0.2) 50%, rgba(0,0,0,0) 100%)'
-                }} />
-                <div className="absolute inset-0 flex flex-col justify-between p-6 text-white">
-                  {app.logo && (
-                    <div className="flex justify-start">
-                      <img 
-                        src={app.logo} 
-                        alt={app.name} 
-                        className="w-12 h-12 rounded-full object-cover"
-                        data-testid={`logo-app-${app.id}`}
-                      />
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          {mockLenses.map((lens) => {
+            // Use hook to check license for each lens
+            // eslint-disable-next-line react-hooks/rules-of-hooks
+            const { hasLicense } = useLicense(lens.id);
+            
+            return (
+              <Card
+                key={lens.id}
+                className="hover-elevate active-elevate-2 cursor-pointer overflow-hidden border-0 h-full flex flex-col"
+                data-testid={`card-lens-${lens.id}`}
+              >
+                <CardContent className="p-0 relative flex-1">
+                  <div className="aspect-video relative">
+                    <img
+                      src={lens.coverImage}
+                      alt={lens.displayName}
+                      className="absolute inset-0 w-full h-full object-cover"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
+                    <div className="absolute inset-0 flex flex-col justify-between p-4 text-white">
+                      <div>
+                        <span className="text-xs font-bold tracking-wider bg-primary/90 backdrop-blur-sm px-2 py-1 rounded-md inline-block">
+                          {lens.name}
+                        </span>
+                      </div>
+                      <div>
+                        <h3 className="text-xl font-bold mb-2 drop-shadow-2xl" data-testid={`text-lens-name-${lens.id}`}>
+                          {lens.displayName}
+                        </h3>
+                        <div className="flex items-center justify-between">
+                          <Badge variant="secondary" className="font-bold" style={{ backgroundColor: '#C1FF72', color: '#000' }}>
+                            {hasLicense ? '✓ Owned' : `${lens.price} XRT`}
+                          </Badge>
+                          {!hasLicense && (
+                            <Lock className="w-4 h-4 text-white/70" />
+                          )}
+                        </div>
+                      </div>
                     </div>
-                  )}
-                  <div className="flex flex-col gap-4">
-                    <div className="flex items-center gap-3 justify-between">
-                      <h3 className="text-2xl font-bold drop-shadow-2xl" data-testid={`text-app-name-${app.id}`}>
-                        {app.name}
-                      </h3>
-                      {app.price && (
-                        <Badge variant="secondary" className="font-bold" style={{ backgroundColor: '#C1FF72', color: '#000' }}>
-                          {hasLicense ? '✓ Owned' : `${app.price} XRT`}
-                        </Badge>
-                      )}
-                    </div>
-                    <p className="text-sm opacity-80 font-medium">
-                      {app.description}
-                    </p>
-                    {app.price && !hasLicense && (
-                      <p className="text-xs opacity-70 flex items-center gap-1">
-                        <Lock className="w-3 h-3" /> Premium Feature
-                      </p>
-                    )}
                   </div>
+                </CardContent>
+                <div className="px-4 py-3 border-t border-white/10">
+                  <Button
+                    className="w-full"
+                    onClick={() => handleLensClick(lens.id)}
+                    data-testid={`button-lens-${lens.id}`}
+                  >
+                    {hasLicense ? 'Use Filter' : 'Purchase'}
+                  </Button>
                 </div>
-              </CardContent>
-            </Card>
-          ))}
+              </Card>
+            );
+          })}
         </div>
       </main>
+
+      {selectedLensForPurchase && (
+        <LicensePurchaseModal
+          open={showPurchaseModal}
+          onOpenChange={setShowPurchaseModal}
+          lensId={selectedLensForPurchase}
+          onPurchaseSuccess={() => {
+            setShowPurchaseModal(false);
+            setSelectedLensForPurchase(null);
+            // User can click to use filter after purchase
+          }}
+        />
+      )}
     </div>
   );
 }

@@ -3,7 +3,6 @@ import { useParams, useLocation } from 'wouter';
 import { useCameraKit } from '@/hooks/useCameraKit';
 import { usePrivy } from '@privy-io/react-auth';
 import CameraControls from '@/components/CameraControls';
-import LensCarousel from '@/components/LensCarousel';
 import PermissionScreen from '@/components/PermissionScreen';
 import PhotoPreview from '@/components/PhotoPreview';
 import AuthGuard from '@/components/AuthGuard';
@@ -13,7 +12,6 @@ import { mockLenses } from '@/pages/Marketplace';
 import { Loader2, LogOut, SwitchCamera, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
-import { Lens } from '@/types/lens';
 
 function CameraViewContent() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -22,11 +20,10 @@ function CameraViewContent() {
   const [, setLocation] = useLocation();
   const [capturedPhoto, setCapturedPhoto] = useState<string | null>(null);
   const [lensApplied, setLensApplied] = useState(false);
-  const [currentLensId, setCurrentLensId] = useState<string | undefined>(lensId);
   const [showLicenseModal, setShowLicenseModal] = useState(false);
   const { logout } = usePrivy();
   const { toast } = useToast();
-  const { hasLicense, loading: licenseLoading, refetch } = useLicense();
+  const { hasLicense, loading: licenseLoading, refetch } = useLicense(lensId);
 
   const {
     status,
@@ -48,10 +45,9 @@ function CameraViewContent() {
         applyLens(selectedLens.id, selectedLens.groupId || null)
           .then(() => {
             setLensApplied(true);
-            setCurrentLensId(selectedLens.id);
             toast({
               title: 'Lens applied',
-              description: `${selectedLens.name} is ready`,
+              description: `${selectedLens.displayName} is ready`,
             });
           })
           .catch((lensErr: any) => {
@@ -65,24 +61,6 @@ function CameraViewContent() {
       }
     }
   }, [status, lensId, lensApplied, applyLens, toast]);
-
-  const handleLensSelect = async (lens: Lens) => {
-    try {
-      setCurrentLensId(lens.id);
-      await applyLens(lens.id, lens.groupId || null);
-      toast({
-        title: 'Lens switched',
-        description: `Now using ${lens.displayName}`,
-      });
-    } catch (err: any) {
-      console.error('Failed to apply lens:', err);
-      toast({
-        title: 'Failed to switch lens',
-        description: err.message || 'Please try again',
-        variant: 'destructive',
-      });
-    }
-  };
 
   const handleCapture = async () => {
     console.log('Capturing photo...');
@@ -104,16 +82,18 @@ function CameraViewContent() {
   }
 
   if (!hasLicense && !licenseLoading) {
+    const lens = lensId ? mockLenses.find(l => l.id === lensId) : null;
+    
     return (
       <div className="fixed inset-0 bg-black flex items-center justify-center z-50">
         <div className="max-w-sm mx-auto px-4 text-center space-y-6">
           <div>
-            <h1 className="text-4xl font-bold text-white mb-2">AR Lenses</h1>
-            <p className="text-gray-300 mb-4">Unlock stunning AR effects with a one-time purchase</p>
+            <h1 className="text-4xl font-bold text-white mb-2">{lens?.displayName || 'Filter'}</h1>
+            <p className="text-gray-300 mb-4">Unlock this AR effect with a one-time purchase</p>
           </div>
 
           <div className="bg-primary/20 border border-primary rounded-lg p-6">
-            <div className="text-5xl font-bold text-primary mb-2">2324 XRT</div>
+            <div className="text-5xl font-bold text-primary mb-2">{lens?.price || 0} XRT</div>
             <p className="text-sm text-gray-300">One-time payment for lifetime access</p>
           </div>
 
@@ -122,7 +102,7 @@ function CameraViewContent() {
             size="lg"
             className="w-full"
           >
-            Unlock AR Lenses
+            Purchase Filter
           </Button>
 
           <Button
@@ -130,21 +110,24 @@ function CameraViewContent() {
             variant="ghost"
             className="w-full text-white hover:bg-white/10"
           >
-            Back to Home
+            Back to Filters
           </Button>
         </div>
 
-        <LicensePurchaseModal
-          open={showLicenseModal}
-          onOpenChange={setShowLicenseModal}
-          onPurchaseSuccess={() => {
-            toast({
-              title: 'Success!',
-              description: 'License purchased. Initializing camera...',
-            });
-            refetch();
-          }}
-        />
+        {lensId && (
+          <LicensePurchaseModal
+            open={showLicenseModal}
+            onOpenChange={setShowLicenseModal}
+            lensId={lensId}
+            onPurchaseSuccess={() => {
+              toast({
+                title: 'Success!',
+                description: 'Filter purchased. Initializing camera...',
+              });
+              refetch();
+            }}
+          />
+        )}
       </div>
     );
   }
@@ -227,12 +210,6 @@ function CameraViewContent() {
               <SwitchCamera className="w-6 h-6" />
             </Button>
           </div>
-
-          <LensCarousel
-            lenses={mockLenses}
-            onLensSelect={handleLensSelect}
-            currentLensId={currentLensId}
-          />
 
           <CameraControls
             onCapture={handleCapture}

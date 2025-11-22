@@ -5,4 +5,5 @@ export interface Lens {
   coverImage: string;
   iconUrl?: string;
   groupId?: string;
+  price: number; // Price in XRT tokens
 }
