@@ -199,7 +199,7 @@ export default function LicensePurchaseModal({
         );
       }
 
-      // Create contract instance with signer
+      // Create contract instance for encoding
       const contract = new ethers.Contract(
         GAME_LICENSING_CONFIG.contractAddress,
         gameABI,
@@ -210,9 +210,15 @@ export default function LicensePurchaseModal({
       console.log('GameId:', numericGameId);
       console.log('Value:', valueInWei.toString(), 'XRT');
 
-      // Call purchaseLicense directly on the contract
-      const txResponse = await contract.purchaseLicense(numericGameId, {
+      // Manually encode the function call (Keplr strips it otherwise)
+      const data = contract.interface.encodeFunctionData('purchaseLicense', [numericGameId]);
+      console.log('Encoded function data:', data);
+
+      // Send transaction manually with encoded data
+      const txResponse = await signer.sendTransaction({
+        to: GAME_LICENSING_CONFIG.contractAddress,
         value: valueInWei,
+        data: data,
         gasLimit: gasLimit,
         gasPrice: gasPrice,
       });
