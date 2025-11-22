@@ -25,9 +25,28 @@ export default function LicensePurchaseModal({
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
 
+  const getKeplrProvider = async () => {
+    const w = window as any;
+    
+    // Check if Keplr is available
+    if (!w.keplr) {
+      throw new Error('Keplr wallet not found');
+    }
+
+    // Enable Keplr
+    await w.keplr.enable(SAGA_CHAIN_CONFIG.chainId);
+
+    // Get the EVM provider from Keplr
+    const provider = w.keplr.providers?.eip155;
+    if (!provider) {
+      throw new Error('Keplr EVM provider not available');
+    }
+
+    return provider;
+  };
+
   const switchToSagaChain = async (provider: any) => {
     try {
-      // Check current chain
       const chainId = await provider.request({ method: 'eth_chainId' });
       const expectedChainId = `0x${SAGA_CHAIN_CONFIG.networkId.toString(16)}`;
       
@@ -35,14 +54,12 @@ export default function LicensePurchaseModal({
         return; // Already on correct chain
       }
 
-      // Try to switch chain
       try {
         await provider.request({
           method: 'wallet_switchEthereumChain',
           params: [{ chainId: expectedChainId }],
         });
       } catch (switchErr: any) {
-        // If chain doesn't exist, add it
         if (switchErr.code === 4902) {
           await provider.request({
             method: 'wallet_addEthereumChain',
@@ -83,17 +100,15 @@ export default function LicensePurchaseModal({
     try {
       setLoading(true);
 
-      const w = window as any;
-      if (!w.ethereum) {
-        throw new Error('Ethereum provider not found. Please ensure your wallet is connected.');
-      }
+      // Get Keplr provider specifically
+      const provider = await getKeplrProvider();
 
-      // Switch to Saga chain first
-      await switchToSagaChain(w.ethereum);
+      // Switch to Saga chain
+      await switchToSagaChain(provider);
 
       // Create provider and signer
-      const provider = new ethers.BrowserProvider(w.ethereum);
-      const signer = await provider.getSigner();
+      const ethersProvider = new ethers.BrowserProvider(provider);
+      const signer = await ethersProvider.getSigner();
 
       // Verify the signer address matches the connected wallet
       const signerAddress = await signer.getAddress();
@@ -103,7 +118,7 @@ export default function LicensePurchaseModal({
 
       toast({
         title: 'Awaiting wallet confirmation...',
-        description: 'Please approve the transaction in your wallet',
+        description: 'Please approve the transaction in your Keplr wallet',
       });
 
       // Create contract instance with signer
@@ -114,23 +129,12 @@ export default function LicensePurchaseModal({
       );
 
       // Parse price
-      let priceInWei;
-      try {
-        priceInWei = ethers.parseEther(GAME_LICENSING_CONFIG.arLensesPrice);
-      } catch (parseErr) {
-        throw new Error(`Failed to parse price: ${parseErr instanceof Error ? parseErr.message : String(parseErr)}`);
-      }
+      const priceInWei = ethers.parseEther(GAME_LICENSING_CONFIG.arLensesPrice);
 
       // Call contract method
-      let tx;
-      try {
-        tx = await contract.purchaseLicense(gameId, {
-          value: priceInWei,
-        });
-      } catch (contractErr: any) {
-        console.error('Contract call error:', contractErr);
-        throw new Error(`Contract call failed: ${contractErr.message || String(contractErr)}`);
-      }
+      const tx = await contract.purchaseLicense(gameId, {
+        value: priceInWei,
+      });
 
       if (!tx) {
         throw new Error('Transaction failed to initialize');
@@ -141,14 +145,8 @@ export default function LicensePurchaseModal({
         description: 'Your transaction is being processed',
       });
 
-      // Wait for receipt with proper error handling
-      let receipt;
-      try {
-        receipt = await tx.wait(1);
-      } catch (waitErr: any) {
-        console.error('Transaction wait error:', waitErr);
-        throw new Error(`Transaction failed: ${waitErr.message || String(waitErr)}`);
-      }
+      // Wait for receipt
+      const receipt = await tx.wait(1);
 
       if (!receipt) {
         throw new Error('Transaction receipt not received');
