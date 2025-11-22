@@ -135,33 +135,26 @@ export default function LicensePurchaseModal({
         throw new Error(`Wrong network: switch to Saga`);
       }
 
-      // Encode the function call
-      const iface = new ethers.Interface(gameABI);
-      const numericGameId = lensId ? getLensGameId(lensId) : gameId;
-      const data = iface.encodeFunctionData('purchaseLicense', [ethers.toBigInt(numericGameId)]);
-      if (!data) {
-        throw new Error('Failed to encode function');
-      }
-      
-      console.log('Encoded function data:', data, 'for gameId:', numericGameId);
+      // Create contract instance
+      const contract = new ethers.Contract(
+        GAME_LICENSING_CONFIG.contractAddress,
+        gameABI,
+        signer
+      );
 
+      const numericGameId = lensId ? getLensGameId(lensId) : gameId;
+      
       // Parse value
       const priceStr = String(price);
       const valueInWei = ethers.parseEther(priceStr);
 
-      // Build transaction with fixed gas params (standard values for contract call)
-      const txData = {
-        to: GAME_LICENSING_CONFIG.contractAddress,
-        data: data,
-        value: valueInWei,
-        gasLimit: ethers.toBigInt(300000), // Fixed gas limit for contract call
-        gasPrice: ethers.toBigInt('1000000000'), // 1 gwei - standard gas price
-      };
+      console.log('Purchasing license with gameId:', numericGameId, 'price:', valueInWei.toString());
 
-      console.log('Sending transaction:', txData);
-
-      // Send transaction using the signer
-      const txResponse = await signer.sendTransaction(txData);
+      // Call purchaseLicense with value
+      const txResponse = await contract.purchaseLicense(
+        ethers.toBigInt(numericGameId),
+        { value: valueInWei }
+      );
 
       if (!txResponse || !txResponse.hash) {
         throw new Error('Transaction failed to send');
