@@ -46,10 +46,10 @@ function MarketplaceContent() {
   return (
     <div className="min-h-screen bg-background">
       <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="container flex h-16 items-center justify-between gap-4 px-4">
+        <div className="container max-w-7xl mx-auto flex h-14 md:h-16 items-center justify-between gap-4 px-4 md:px-6">
           <div className="flex items-center gap-2">
-            <Sparkles className="w-6 h-6 text-primary" />
-            <h1 className="text-xl font-semibold">AR Lens Collection</h1>
+            <Sparkles className="w-5 h-5 md:w-6 md:h-6 text-primary" />
+            <h1 className="text-lg md:text-xl font-semibold">AR Lens Collection</h1>
           </div>
           <Button
             onClick={logout}
@@ -57,14 +57,14 @@ function MarketplaceContent() {
             variant="ghost"
             data-testid="button-logout"
           >
-            <LogOut className="w-5 h-5" />
+            <LogOut className="w-4 h-4 md:w-5 md:h-5" />
           </Button>
         </div>
       </header>
 
-      <main className="container px-4 py-8">
-        <div className="mb-6">
-          <p className="text-muted-foreground">
+      <main className="container max-w-7xl mx-auto px-4 md:px-6 py-6 md:py-8">
+        <div className="mb-6 md:mb-8">
+          <p className="text-sm md:text-base text-muted-foreground">
             Browse and select from our collection of AR lenses
           </p>
           <Badge variant="secondary" className="mt-2">
@@ -72,7 +72,7 @@ function MarketplaceContent() {
           </Badge>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-4">
           {mockLenses.map((lens) => (
             <Card
               key={lens.id}
@@ -88,16 +88,16 @@ function MarketplaceContent() {
                     className="absolute inset-0 w-full h-full object-cover"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
-                  <div className="absolute inset-0 flex flex-col justify-end p-6 text-white">
-                    <div className="mb-2">
-                      <span className="text-sm font-bold tracking-wider bg-primary/90 backdrop-blur-sm px-3 py-1.5 rounded-md inline-block">
+                  <div className="absolute inset-0 flex flex-col justify-end p-3 md:p-4 lg:p-6 text-white">
+                    <div className="mb-1 md:mb-2">
+                      <span className="text-xs md:text-sm font-bold tracking-wider bg-primary/90 backdrop-blur-sm px-2 py-1 md:px-3 md:py-1.5 rounded-md inline-block">
                         {lens.name}
                       </span>
                     </div>
-                    <h3 className="text-2xl font-bold mb-2 drop-shadow-2xl" data-testid={`text-lens-name-${lens.id}`}>
+                    <h3 className="text-lg md:text-xl lg:text-2xl font-bold mb-1 md:mb-2 drop-shadow-2xl" data-testid={`text-lens-name-${lens.id}`}>
                       {lens.displayName}
                     </h3>
-                    <p className="text-sm opacity-80 font-medium">
+                    <p className="text-xs md:text-sm opacity-80 font-medium">
                       Tap to try
                     </p>
                   </div>
