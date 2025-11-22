@@ -33,20 +33,12 @@ function App() {
         appearance: {
           theme: "dark",
           accentColor: "#C1FF72",
-          logo: undefined,
-          showWalletLoginFirst: false,
-          walletList: ["detected_wallets", "metamask"],
-        },
-        legal: {
-          privacyPolicyUrl: undefined,
-          termsAndConditionsUrl: undefined,
         },
         loginMethods: ["email", "wallet", "google"],
         embeddedWallets: {
           ethereum: {
-            createOnLogin: "off",
+            createOnLogin: "all-users",
           },
-          showWalletUIs: false,
         },
       }}
     >
