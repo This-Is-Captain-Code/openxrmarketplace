@@ -166,29 +166,22 @@ export default function LicensePurchaseModal({
       console.log('💰 Balance in Wei:', balance.toString());
       console.log('💰 Balance in XRT:', balanceInXRT);
 
-      // Encode the function call
-      const iface = new ethers.Interface(gameABI);
-      
       // Convert lensId to numeric gameId (required parameter)
       if (!lensId) {
         throw new Error('Lens ID is required for purchase');
       }
       const numericGameId = getLensGameId(lensId);
       
-      console.log('Encoding purchaseLicense with lensId:', lensId, 'gameId:', numericGameId);
-      const data = iface.encodeFunctionData('purchaseLicense', [numericGameId]);
-      if (!data) {
-        throw new Error('Failed to encode purchaseLicense function');
-      }
+      console.log('Purchasing license for lensId:', lensId, 'gameId:', numericGameId);
 
       // Parse price in Wei - user provides price in XRT tokens
       const priceStr = String(price);
       const valueInWei = ethers.parseEther(priceStr);
       
       // Calculate total cost (value + gas)
-      const gasLimit = ethers.toBigInt(300000);
+      const gasLimit = 300000;
       const gasPrice = ethers.toBigInt('1000000000'); // 1 gwei
-      const gasCost = gasLimit * gasPrice;
+      const gasCost = ethers.toBigInt(gasLimit) * gasPrice;
       const totalCost = valueInWei + gasCost;
       const totalCostInXRT = ethers.formatEther(totalCost);
       
@@ -197,7 +190,6 @@ export default function LicensePurchaseModal({
       console.log('Gas cost in Wei:', gasCost.toString());
       console.log('Gas cost in XRT:', ethers.formatEther(gasCost));
       console.log('Total cost in XRT:', totalCostInXRT);
-      console.log('Encoded data:', data);
 
       // Check if balance is sufficient
       if (balance < totalCost) {
@@ -207,27 +199,23 @@ export default function LicensePurchaseModal({
         );
       }
 
-      // Build transaction with fixed gas params
-      const txData = {
-        to: GAME_LICENSING_CONFIG.contractAddress,
-        data: data,
+      // Create contract instance with signer
+      const contract = new ethers.Contract(
+        GAME_LICENSING_CONFIG.contractAddress,
+        gameABI,
+        signer
+      );
+
+      console.log('Calling purchaseLicense on contract...');
+      console.log('GameId:', numericGameId);
+      console.log('Value:', valueInWei.toString(), 'XRT');
+
+      // Call purchaseLicense directly on the contract
+      const txResponse = await contract.purchaseLicense(numericGameId, {
         value: valueInWei,
-        from: signerAddress,
-        gasLimit: ethers.toBigInt(300000),
-        gasPrice: ethers.toBigInt('1000000000'),
-      };
-
-      console.log('Transaction data:', {
-        to: txData.to,
-        from: txData.from,
-        value: txData.value.toString(),
-        gasLimit: txData.gasLimit.toString(),
-        gasPrice: txData.gasPrice.toString(),
-        data: txData.data,
+        gasLimit: gasLimit,
+        gasPrice: gasPrice,
       });
-
-      // Send transaction using the signer
-      const txResponse = await signer.sendTransaction(txData);
 
       if (!txResponse || !txResponse.hash) {
         throw new Error('Transaction failed to send');
