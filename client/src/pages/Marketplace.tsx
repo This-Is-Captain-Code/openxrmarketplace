@@ -69,12 +69,9 @@ function MarketplaceContent() {
                 <h3 className="font-medium mb-1" data-testid={`text-lens-name-${lens.id}`}>
                   {lens.name}
                 </h3>
-                <p className="text-xs text-muted-foreground mb-2">
+                <p className="text-xs text-muted-foreground">
                   ID: {lens.id.substring(0, 8)}...
                 </p>
-                <Badge variant="outline" className="text-xs">
-                  0.01 FLUID
-                </Badge>
               </CardContent>
             </Card>
           ))}
