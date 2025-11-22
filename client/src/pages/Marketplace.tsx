@@ -4,25 +4,40 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import AuthGuard from '@/components/AuthGuard';
 
+import lens1Cover from '@assets/stock_images/woman_with_ar_face_f_9c94299e.jpg';
+import lens2Cover from '@assets/stock_images/woman_with_ar_face_f_0250b8c9.jpg';
+import lens3Cover from '@assets/stock_images/woman_with_ar_face_f_170108b2.jpg';
+import lens4Cover from '@assets/stock_images/woman_with_ar_face_f_02117b29.jpg';
+import lens5Cover from '@assets/stock_images/portrait_with_beauty_d3c5a7cb.jpg';
+import lens6Cover from '@assets/stock_images/portrait_with_beauty_586219b1.jpg';
+import lens7Cover from '@assets/stock_images/portrait_with_beauty_629ddee1.jpg';
+import lens8Cover from '@assets/stock_images/portrait_with_beauty_f09a424d.jpg';
+import lens9Cover from '@assets/stock_images/neon_holographic_dig_cf917332.jpg';
+import lens10Cover from '@assets/stock_images/neon_holographic_dig_ac0b06f5.jpg';
+import lens11Cover from '@assets/stock_images/neon_holographic_dig_044898d4.jpg';
+import lens12Cover from '@assets/stock_images/neon_holographic_dig_7a39874b.jpg';
+
 export interface Lens {
   id: string;
   name: string;
+  displayName: string;
+  coverImage: string;
   groupId?: string;
 }
 
 export const mockLenses: Lens[] = [
-  { id: '887d80da-f4ba-4a40-a0d6-4e4d0cfb31b1', name: 'Lens 1', groupId: 'b5551368-7881-4a23-a034-a0e757ec85a7' },
-  { id: '43276710876', name: 'Lens 2', groupId: '2a385df2-4591-47df-9594-b273b456c862' },
-  { id: '43276930875', name: 'Lens 3', groupId: '2a385df2-4591-47df-9594-b273b456c862' },
-  { id: '43281170875', name: 'Lens 4', groupId: '2a385df2-4591-47df-9594-b273b456c862' },
-  { id: '43288720877', name: 'Lens 5', groupId: '2a385df2-4591-47df-9594-b273b456c862' },
-  { id: '43288930875', name: 'Lens 6', groupId: '2a385df2-4591-47df-9594-b273b456c862' },
-  { id: '43290810875', name: 'Lens 7', groupId: '2a385df2-4591-47df-9594-b273b456c862' },
-  { id: '43290830875', name: 'Lens 8', groupId: '2a385df2-4591-47df-9594-b273b456c862' },
-  { id: '43293650876', name: 'Lens 9', groupId: '2a385df2-4591-47df-9594-b273b456c862' },
-  { id: '43294710875', name: 'Lens 10', groupId: '2a385df2-4591-47df-9594-b273b456c862' },
-  { id: '43296870875', name: 'Lens 11', groupId: '2a385df2-4591-47df-9594-b273b456c862' },
-  { id: '43296900875', name: 'Lens 12', groupId: '2a385df2-4591-47df-9594-b273b456c862' },
+  { id: '887d80da-f4ba-4a40-a0d6-4e4d0cfb31b1', name: 'Lens 1', displayName: 'Glowing Aura', coverImage: lens1Cover, groupId: 'b5551368-7881-4a23-a034-a0e757ec85a7' },
+  { id: '43276710876', name: 'Lens 2', displayName: 'Radiant Beauty', coverImage: lens2Cover, groupId: '2a385df2-4591-47df-9594-b273b456c862' },
+  { id: '43276930875', name: 'Lens 3', displayName: 'Golden Hour', coverImage: lens3Cover, groupId: '2a385df2-4591-47df-9594-b273b456c862' },
+  { id: '43281170875', name: 'Lens 4', displayName: 'Neon Glow', coverImage: lens4Cover, groupId: '2a385df2-4591-47df-9594-b273b456c862' },
+  { id: '43288720877', name: 'Lens 5', displayName: 'Soft Focus', coverImage: lens5Cover, groupId: '2a385df2-4591-47df-9594-b273b456c862' },
+  { id: '43288930875', name: 'Lens 6', displayName: 'Dreamy Vibes', coverImage: lens6Cover, groupId: '2a385df2-4591-47df-9594-b273b456c862' },
+  { id: '43290810875', name: 'Lens 7', displayName: 'Natural Glow', coverImage: lens7Cover, groupId: '2a385df2-4591-47df-9594-b273b456c862' },
+  { id: '43290830875', name: 'Lens 8', displayName: 'Ethereal Light', coverImage: lens8Cover, groupId: '2a385df2-4591-47df-9594-b273b456c862' },
+  { id: '43293650876', name: 'Lens 9', displayName: 'Cyber Dreams', coverImage: lens9Cover, groupId: '2a385df2-4591-47df-9594-b273b456c862' },
+  { id: '43294710875', name: 'Lens 10', displayName: 'Holographic', coverImage: lens10Cover, groupId: '2a385df2-4591-47df-9594-b273b456c862' },
+  { id: '43296870875', name: 'Lens 11', displayName: 'Digital Art', coverImage: lens11Cover, groupId: '2a385df2-4591-47df-9594-b273b456c862' },
+  { id: '43296900875', name: 'Lens 12', displayName: 'Neon Dreams', coverImage: lens12Cover, groupId: '2a385df2-4591-47df-9594-b273b456c862' },
 ];
 
 function MarketplaceContent() {
@@ -57,20 +72,31 @@ function MarketplaceContent() {
           {mockLenses.map((lens) => (
             <Card
               key={lens.id}
-              className="hover-elevate active-elevate-2 cursor-pointer overflow-visible"
+              className="hover-elevate active-elevate-2 cursor-pointer overflow-hidden border-0"
               onClick={() => handleLensClick(lens)}
               data-testid={`card-lens-${lens.id}`}
             >
-              <CardContent className="p-4">
-                <div className="aspect-square bg-muted rounded-md mb-3 flex items-center justify-center">
-                  <Sparkles className="w-12 h-12 text-muted-foreground" />
+              <CardContent className="p-0 relative">
+                <div className="aspect-[3/4] relative">
+                  <img
+                    src={lens.coverImage}
+                    alt={lens.displayName}
+                    className="absolute inset-0 w-full h-full object-cover"
+                    style={{ filter: 'blur(8px)', transform: 'scale(1.1)' }}
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+                  <div className="absolute inset-0 flex flex-col justify-end p-4 text-white">
+                    <p className="text-xs font-medium mb-1 bg-white/20 backdrop-blur-sm px-2 py-1 rounded-md inline-block self-start">
+                      {lens.name}
+                    </p>
+                    <h3 className="text-lg font-bold mb-1 drop-shadow-lg" data-testid={`text-lens-name-${lens.id}`}>
+                      {lens.displayName}
+                    </h3>
+                    <p className="text-xs opacity-90">
+                      Tap to try
+                    </p>
+                  </div>
                 </div>
-                <h3 className="font-medium mb-1" data-testid={`text-lens-name-${lens.id}`}>
-                  {lens.name}
-                </h3>
-                <p className="text-xs text-muted-foreground">
-                  Tap to try
-                </p>
               </CardContent>
             </Card>
           ))}
