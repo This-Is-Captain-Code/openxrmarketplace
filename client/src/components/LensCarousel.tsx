@@ -1,11 +1,4 @@
-export interface Lens {
-  id: string;
-  name: string;
-  displayName: string;
-  coverImage: string;
-  iconUrl?: string;
-  groupId?: string;
-}
+import { Lens } from '@/types/lens';
 
 interface LensCarouselProps {
   lenses: Lens[];

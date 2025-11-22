@@ -3,6 +3,7 @@ import { Sparkles } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import AuthGuard from '@/components/AuthGuard';
+import { Lens } from '@/types/lens';
 
 import lens1Cover from '@assets/stock_images/woman_with_ar_face_f_9c94299e.jpg';
 import lens2Cover from '@assets/stock_images/woman_with_ar_face_f_0250b8c9.jpg';
@@ -16,14 +17,6 @@ import lens9Cover from '@assets/stock_images/neon_holographic_dig_cf917332.jpg';
 import lens10Cover from '@assets/stock_images/neon_holographic_dig_ac0b06f5.jpg';
 import lens11Cover from '@assets/stock_images/neon_holographic_dig_044898d4.jpg';
 import lens12Cover from '@assets/stock_images/neon_holographic_dig_7a39874b.jpg';
-
-export interface Lens {
-  id: string;
-  name: string;
-  displayName: string;
-  coverImage: string;
-  groupId?: string;
-}
 
 export const mockLenses: Lens[] = [
   { id: '887d80da-f4ba-4a40-a0d6-4e4d0cfb31b1', name: 'Lens 01', displayName: 'Glowing Aura', coverImage: lens1Cover, groupId: 'b5551368-7881-4a23-a034-a0e757ec85a7' },
