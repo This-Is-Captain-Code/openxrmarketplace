@@ -1,0 +1,116 @@
+{
+  "contractName": "GameLicensing",
+  "description": "Decentralized Game Licensing System - Manage game access with native XRT token payments on Saga chainlet",
+  "deployedAt": "2025-11-22",
+  "network": {
+    "name": "Saga Chainlet (OpenXR)",
+    "chainId": 2763783314764000,
+    "rpcUrl": "https://openxr-2763783314764000-1.jsonrpc.sagarpc.io"
+  },
+  "contractAddress": "0x91C7B6f8905060D6aE711878020DB15E90C697E0",
+  "tokenType": "Native XRT (no ERC20 address needed)",
+  "features": [
+    "Game listing with custom pricing",
+    "Native XRT token payments",
+    "On-chain license verification",
+    "Game owner management",
+    "License purchase and tracking",
+    "Ownership transfer capability",
+    "Excess payment refunds"
+  ],
+  "quickStart": {
+    "listGame": {
+      "function": "listGame(name, description, price)",
+      "example": "await contract.listGame('My Game', 'Game Description', ethers.utils.parseEther('100'))",
+      "returns": "gameId (uint256)"
+    },
+    "purchaseLicense": {
+      "function": "purchaseLicense(gameId)",
+      "example": "await contract.purchaseLicense(1, { value: ethers.utils.parseEther('100') })",
+      "note": "Payable function - send XRT as msg.value"
+    },
+    "verifyLicense": {
+      "function": "hasLicense(gameId, userAddress)",
+      "example": "const owned = await contract.hasLicense(1, '0x...')",
+      "returns": "boolean"
+    }
+  },
+  "mainFunctions": {
+    "gameOwner": [
+      "listGame(string name, string description, uint256 price) -> uint256",
+      "updateGamePrice(uint256 gameId, uint256 newPrice)",
+      "setGameActiveStatus(uint256 gameId, bool isActive)",
+      "transferGameOwnership(uint256 gameId, address newOwner)"
+    ],
+    "player": [
+      "purchaseLicense(uint256 gameId) [payable]",
+      "hasLicense(uint256 gameId, address user) -> bool"
+    ],
+    "viewFunctions": [
+      "getGame(uint256 gameId)",
+      "getLicense(uint256 gameId, address user)",
+      "getGamesByOwner(address owner) -> uint256[]",
+      "getLicensesByUser(address user) -> uint256[]"
+    ]
+  },
+  "integration": {
+    "ethersjs": {
+      "import": "import { ethers } from 'ethers';",
+      "connect": "const contract = new ethers.Contract(contractAddress, abi, signer);",
+      "listGame": "const tx = await contract.listGame('Game Name', 'Description', ethers.utils.parseEther('100'));",
+      "purchase": "const tx = await contract.purchaseLicense(1, { value: ethers.utils.parseEther('100') });"
+    },
+    "web3js": {
+      "import": "const Web3 = require('web3');",
+      "connect": "const contract = new web3.eth.Contract(abi, contractAddress);",
+      "listGame": "const tx = await contract.methods.listGame('Game', 'Desc', web3.utils.toWei('100', 'ether')).send({from: userAddress});",
+      "purchase": "const tx = await contract.methods.purchaseLicense(1).send({from: userAddress, value: web3.utils.toWei('100', 'ether')});"
+    }
+  },
+  "events": [
+    {
+      "name": "GameListed",
+      "parameters": ["indexed uint256 gameId", "string name", "indexed address owner", "uint256 price"]
+    },
+    {
+      "name": "LicensePurchased",
+      "parameters": ["indexed uint256 gameId", "indexed address buyer", "uint256 price", "uint256 purchaseDate"]
+    },
+    {
+      "name": "GameUpdated",
+      "parameters": ["indexed uint256 gameId", "uint256 newPrice", "bool isActive"]
+    },
+    {
+      "name": "GameOwnershipTransferred",
+      "parameters": ["indexed uint256 gameId", "indexed address previousOwner", "indexed address newOwner"]
+    }
+  ],
+  "testing": {
+    "status": "Production Ready",
+    "testsPasssed": 15,
+    "coverage": "Full coverage including:",
+    "testCases": [
+      "✓ Game listing and validation",
+      "✓ License purchase with XRT payment",
+      "✓ Price updates and game deactivation",
+      "✓ License ownership verification",
+      "✓ Payment transfer to game owner",
+      "✓ Duplicate purchase prevention",
+      "✓ Insufficient payment rejection",
+      "✓ Excess payment refunds",
+      "✓ Game and license queries"
+    ]
+  },
+  "security": [
+    "ReentrancyGuard for reentrancy protection",
+    "Access control (game owners manage only their games)",
+    "Input validation on all transactions",
+    "Secure payment handling with fallback",
+    "Ownership-based authorization"
+  ],
+  "exampleIntegration": {
+    "vanillaJS": {
+      "code": "const gameId = 1; const price = ethers.utils.parseEther('100'); const tx = await contract.connect(userSigner).purchaseLicense(gameId, { value: price }); const hasAccess = await contract.hasLicense(gameId, userAddress);"
+    }
+  }
+}

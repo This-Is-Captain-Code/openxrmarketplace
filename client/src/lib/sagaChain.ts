@@ -28,6 +28,12 @@ export const SAGA_CHAIN_CONFIG = {
   networkId: 2763783314764000,
 };
 
+export const GAME_LICENSING_CONFIG = {
+  contractAddress: '0x91C7B6f8905060D6aE711878020DB15E90C697E0',
+  arLensesGameId: 1,
+  arLensesPrice: '2324', // XRT tokens
+};
+
 export const PRIVY_CHAINS = [
   {
     chainId: SAGA_CHAIN_CONFIG.networkId,

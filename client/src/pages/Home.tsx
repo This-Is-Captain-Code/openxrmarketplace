@@ -1,15 +1,19 @@
 import { useLocation } from 'wouter';
 import { Card, CardContent } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 import AuthGuard from '@/components/AuthGuard';
 import { Button } from '@/components/ui/button';
 import { usePrivy } from '@privy-io/react-auth';
-import { LogOut } from 'lucide-react';
+import { LogOut, Lock } from 'lucide-react';
+import { useLicense } from '@/hooks/useLicense';
+import { GAME_LICENSING_CONFIG } from '@/lib/sagaChain';
 
 interface XRApp {
   id: string;
   name: string;
   description: string;
   coverImage: string;
+  price?: string;
 }
 
 const xrApps: XRApp[] = [
@@ -18,12 +22,14 @@ const xrApps: XRApp[] = [
     name: 'AR Lenses',
     description: 'Transform your camera with stunning AR effects',
     coverImage: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+    price: GAME_LICENSING_CONFIG.arLensesPrice,
   },
 ];
 
 function HomeContent() {
   const [, setLocation] = useLocation();
   const { logout } = usePrivy();
+  const { hasLicense } = useLicense();
 
   const handleAppClick = (appId: string) => {
     if (appId === 'lenses') {
@@ -77,12 +83,24 @@ function HomeContent() {
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
                 <div className="absolute inset-0 flex flex-col justify-end p-6 text-white">
-                  <h3 className="text-2xl font-bold mb-2 drop-shadow-2xl" data-testid={`text-app-name-${app.id}`}>
-                    {app.name}
-                  </h3>
+                  <div className="flex items-start justify-between mb-2">
+                    <h3 className="text-2xl font-bold drop-shadow-2xl" data-testid={`text-app-name-${app.id}`}>
+                      {app.name}
+                    </h3>
+                    {app.price && (
+                      <Badge variant="secondary" className="bg-primary text-black font-bold">
+                        {hasLicense ? '✓ Owned' : `${app.price} XRT`}
+                      </Badge>
+                    )}
+                  </div>
                   <p className="text-sm opacity-80 font-medium">
                     {app.description}
                   </p>
+                  {app.price && !hasLicense && (
+                    <p className="text-xs mt-2 opacity-70 flex items-center gap-1">
+                      <Lock className="w-3 h-3" /> Premium Feature
+                    </p>
+                  )}
                 </div>
               </CardContent>
             </Card>

@@ -7,6 +7,8 @@ import LensCarousel from '@/components/LensCarousel';
 import PermissionScreen from '@/components/PermissionScreen';
 import PhotoPreview from '@/components/PhotoPreview';
 import AuthGuard from '@/components/AuthGuard';
+import LicensePurchaseModal from '@/components/LicensePurchaseModal';
+import { useLicense } from '@/hooks/useLicense';
 import { mockLenses } from '@/pages/Marketplace';
 import { Loader2, LogOut, SwitchCamera, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -21,8 +23,10 @@ function CameraViewContent() {
   const [capturedPhoto, setCapturedPhoto] = useState<string | null>(null);
   const [lensApplied, setLensApplied] = useState(false);
   const [currentLensId, setCurrentLensId] = useState<string | undefined>(lensId);
+  const [showLicenseModal, setShowLicenseModal] = useState(false);
   const { logout } = usePrivy();
   const { toast } = useToast();
+  const { hasLicense, loading: licenseLoading } = useLicense();
 
   const {
     status,
@@ -97,6 +101,52 @@ function CameraViewContent() {
 
   if (status === 'permission_needed') {
     return <PermissionScreen onRequestPermission={requestPermission} error={error} />;
+  }
+
+  if (!hasLicense && !licenseLoading) {
+    return (
+      <div className="fixed inset-0 bg-black flex items-center justify-center z-50">
+        <div className="max-w-sm mx-auto px-4 text-center space-y-6">
+          <div>
+            <h1 className="text-4xl font-bold text-white mb-2">AR Lenses</h1>
+            <p className="text-gray-300 mb-4">Unlock stunning AR effects with a one-time purchase</p>
+          </div>
+
+          <div className="bg-primary/20 border border-primary rounded-lg p-6">
+            <div className="text-5xl font-bold text-primary mb-2">2324 XRT</div>
+            <p className="text-sm text-gray-300">One-time payment for lifetime access</p>
+          </div>
+
+          <Button
+            onClick={() => setShowLicenseModal(true)}
+            size="lg"
+            className="w-full"
+          >
+            Unlock AR Lenses
+          </Button>
+
+          <Button
+            onClick={() => setLocation('/')}
+            variant="ghost"
+            className="w-full text-white hover:bg-white/10"
+          >
+            Back to Home
+          </Button>
+        </div>
+
+        <LicensePurchaseModal
+          open={showLicenseModal}
+          onOpenChange={setShowLicenseModal}
+          onPurchaseSuccess={() => {
+            toast({
+              title: 'Success!',
+              description: 'License purchased. Reloading...',
+            });
+            setTimeout(() => window.location.reload(), 1500);
+          }}
+        />
+      </div>
+    );
   }
 
   if (capturedPhoto) {
