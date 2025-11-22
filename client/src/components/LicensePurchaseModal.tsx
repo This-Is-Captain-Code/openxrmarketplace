@@ -15,6 +15,9 @@ interface LicensePurchaseModalProps {
   gameId?: number;
 }
 
+const RPC_URL = SAGA_CHAIN_CONFIG.rpcUrl;
+const CHAIN_ID = SAGA_CHAIN_CONFIG.networkId;
+
 export default function LicensePurchaseModal({
   open,
   onOpenChange,
@@ -24,32 +27,6 @@ export default function LicensePurchaseModal({
   const { user } = usePrivy();
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
-
-  const getWalletProvider = () => {
-    if (typeof window === 'undefined') return null;
-
-    const w = window as any;
-    
-    // Check for Keplr first (since user connected with Keplr)
-    // Keplr has an EVM provider for EVM chains
-    if (w.keplr) {
-      // Try to get the Keplr EVM provider
-      if (w.keplr.providers?.eip155) {
-        return w.keplr.providers.eip155;
-      }
-      // Keplr might also inject as window.ethereum
-      if (w.keplr.ethereum) {
-        return w.keplr.ethereum;
-      }
-    }
-    
-    // If not Keplr, check for other EVM wallets (but avoid MetaMask if Keplr exists)
-    if (w.ethereum) {
-      return w.ethereum;
-    }
-    
-    return null;
-  };
 
   const handlePurchase = async () => {
     if (!user?.wallet?.address) {
@@ -61,23 +38,86 @@ export default function LicensePurchaseModal({
       return;
     }
 
-    const provider = getWalletProvider();
-    if (!provider) {
-      toast({
-        title: 'Wallet provider not found',
-        description: 'Please ensure your Keplr wallet is properly connected',
-        variant: 'destructive',
-      });
-      return;
-    }
-
     try {
       setLoading(true);
+
+      const w = window as any;
       
-      // Create ethers provider and signer from the connected wallet
+      // Check if Keplr is available
+      if (!w.keplr) {
+        throw new Error('Keplr wallet not found. Please install Keplr extension.');
+      }
+
+      // Add Saga chain to Keplr if needed
+      try {
+        await w.keplr.experimentalSuggestChain({
+          chainId: `0x${CHAIN_ID.toString(16)}`,
+          chainName: 'Saga - openxr',
+          rpc: RPC_URL,
+          rest: 'https://openxr-2763783314764000-1.rest.sagarpc.io',
+          bip44: {
+            coinType: 60,
+          },
+          bech32Config: {
+            bech32PrefixAccAddr: 'saga',
+            bech32PrefixAccPub: 'sagapub',
+            bech32PrefixValAddr: 'sagavaloper',
+            bech32PrefixValPub: 'sagavaloperpub',
+            bech32PrefixConsAddr: 'sagavalcons',
+            bech32PrefixConsPub: 'sagavalconspub',
+          },
+          currencies: [
+            {
+              coinDenom: 'XRT',
+              coinMinimalDenom: 'uXRT',
+              coinDecimals: 18,
+            },
+          ],
+          feeCurrencies: [
+            {
+              coinDenom: 'XRT',
+              coinMinimalDenom: 'uXRT',
+              coinDecimals: 18,
+              gasPriceStep: {
+                low: 0.01,
+                average: 0.025,
+                high: 0.03,
+              },
+            },
+          ],
+          stakeCurrency: {
+            coinDenom: 'XRT',
+            coinMinimalDenom: 'uXRT',
+            coinDecimals: 18,
+          },
+        });
+      } catch (e) {
+        // Chain might already be added
+        console.log('Chain already added or Keplr error:', e);
+      }
+
+      // Get EVM provider from Keplr
+      let provider = w.keplr.providers?.eip155;
+      if (!provider) {
+        throw new Error('Keplr EVM provider not available');
+      }
+
+      // Create ethers provider
       const ethersProvider = new ethers.BrowserProvider(provider);
-      const signer = await ethersProvider.getSigner();
       
+      // Get signer
+      const signer = await ethersProvider.getSigner();
+      const signerAddress = await signer.getAddress();
+      
+      if (!signerAddress) {
+        throw new Error('Failed to get signer address');
+      }
+
+      toast({
+        title: 'Awaiting wallet confirmation...',
+        description: 'Please approve the transaction in your Keplr wallet',
+      });
+
       const contract = new ethers.Contract(
         GAME_LICENSING_CONFIG.contractAddress,
         gameABI,
@@ -86,11 +126,6 @@ export default function LicensePurchaseModal({
 
       const priceInWei = ethers.parseEther(GAME_LICENSING_CONFIG.arLensesPrice);
       
-      toast({
-        title: 'Awaiting wallet confirmation...',
-        description: 'Check your Keplr wallet to approve the transaction',
-      });
-
       const tx = await contract.purchaseLicense(gameId, {
         value: priceInWei,
       });
@@ -101,6 +136,10 @@ export default function LicensePurchaseModal({
       });
 
       const receipt = await tx.wait();
+
+      if (!receipt) {
+        throw new Error('Transaction failed - no receipt received');
+      }
 
       toast({
         title: 'License purchased!',
@@ -122,7 +161,7 @@ export default function LicensePurchaseModal({
         } else {
           toast({
             title: 'Purchase failed',
-            description: err.message.substring(0, 100),
+            description: err.message,
             variant: 'destructive',
           });
         }
