@@ -40,28 +40,18 @@ export default function LicensePurchaseModal({
 
       const w = window as any;
       
-      // Get Keplr provider
       if (!w.keplr) {
-        throw new Error('Keplr wallet not found. Please install Keplr extension.');
+        throw new Error('Keplr wallet not found');
       }
 
-      // Get the provider - try EIP155 first, then ethereum
+      // Get provider
       let provider = w.keplr.providers?.eip155;
       if (!provider) {
         provider = w.keplr.ethereum;
       }
       
       if (!provider) {
-        throw new Error('Keplr provider not available. Please ensure Keplr is properly installed.');
-      }
-
-      // Create ethers provider and signer
-      const ethersProvider = new ethers.BrowserProvider(provider);
-      const signer = await ethersProvider.getSigner();
-      const signerAddress = await signer.getAddress();
-
-      if (signerAddress.toLowerCase() !== user.wallet.address.toLowerCase()) {
-        throw new Error('Active wallet in Keplr does not match your connected account. Please switch to the correct account.');
+        throw new Error('Keplr provider not available');
       }
 
       toast({
@@ -69,26 +59,52 @@ export default function LicensePurchaseModal({
         description: 'Please approve the transaction in your Keplr wallet',
       });
 
-      // Create contract instance
-      const contract = new ethers.Contract(
-        GAME_LICENSING_CONFIG.contractAddress,
-        gameABI,
-        signer
-      );
+      // Use JSON-RPC directly to send transaction
+      const ethersProvider = new ethers.BrowserProvider(provider);
+      const signer = await ethersProvider.getSigner();
+      const userAddress = await signer.getAddress();
 
-      // Parse and send transaction
+      if (userAddress.toLowerCase() !== user.wallet.address.toLowerCase()) {
+        throw new Error('Wallet mismatch');
+      }
+
+      // Create contract interface to encode the function
+      const iface = new ethers.Interface(gameABI);
+      const data = iface.encodeFunctionData('purchaseLicense', [gameId]);
+
       const priceInWei = ethers.parseEther(GAME_LICENSING_CONFIG.arLensesPrice);
+
+      // Get gas price
+      const gasPrice = await ethersProvider.getGasPrice();
       
-      const tx = await contract.purchaseLicense(gameId, {
+      // Prepare transaction
+      const tx = {
+        to: GAME_LICENSING_CONFIG.contractAddress,
+        from: userAddress,
+        data: data,
         value: priceInWei,
-      });
+        gasLimit: 300000n, // Fixed gas limit for purchaseLicense
+        gasPrice: gasPrice,
+      };
+
+      // Estimate gas first
+      try {
+        const estimatedGas = await ethersProvider.estimateGas(tx);
+        tx.gasLimit = estimatedGas > 300000n ? estimatedGas : 300000n;
+      } catch (estimateErr) {
+        console.warn('Gas estimation failed, using fixed limit:', estimateErr);
+        tx.gasLimit = 300000n;
+      }
+
+      // Send transaction
+      const txResponse = await signer.sendTransaction(tx);
 
       toast({
         title: 'Processing payment...',
-        description: 'Your transaction is being processed on Saga',
+        description: 'Your transaction is being processed',
       });
 
-      const receipt = await tx.wait(1);
+      const receipt = await txResponse.wait(1);
 
       if (!receipt) {
         throw new Error('Transaction failed');
@@ -108,7 +124,7 @@ export default function LicensePurchaseModal({
       
       if (err instanceof Error) {
         if (err.message.includes('user rejected') || err.message.includes('User denied')) {
-          errorMessage = 'You cancelled the transaction in your wallet';
+          errorMessage = 'You cancelled the transaction';
         } else {
           errorMessage = err.message;
         }
