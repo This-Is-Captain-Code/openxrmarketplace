@@ -25,6 +25,32 @@ export default function LicensePurchaseModal({
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
 
+  const getWalletProvider = () => {
+    if (typeof window === 'undefined') return null;
+
+    const w = window as any;
+    
+    // Check for Keplr first (since user connected with Keplr)
+    // Keplr has an EVM provider for EVM chains
+    if (w.keplr) {
+      // Try to get the Keplr EVM provider
+      if (w.keplr.providers?.eip155) {
+        return w.keplr.providers.eip155;
+      }
+      // Keplr might also inject as window.ethereum
+      if (w.keplr.ethereum) {
+        return w.keplr.ethereum;
+      }
+    }
+    
+    // If not Keplr, check for other EVM wallets (but avoid MetaMask if Keplr exists)
+    if (w.ethereum) {
+      return w.ethereum;
+    }
+    
+    return null;
+  };
+
   const handlePurchase = async () => {
     if (!user?.wallet?.address) {
       toast({
@@ -35,10 +61,11 @@ export default function LicensePurchaseModal({
       return;
     }
 
-    if (typeof window === 'undefined' || !window.ethereum) {
+    const provider = getWalletProvider();
+    if (!provider) {
       toast({
-        title: 'Wallet not found',
-        description: 'Please ensure your wallet extension is installed',
+        title: 'Wallet provider not found',
+        description: 'Please ensure your Keplr wallet is properly connected',
         variant: 'destructive',
       });
       return;
@@ -47,9 +74,9 @@ export default function LicensePurchaseModal({
     try {
       setLoading(true);
       
-      // Create ethers provider and signer from the injected wallet
-      const provider = new ethers.BrowserProvider(window.ethereum);
-      const signer = await provider.getSigner();
+      // Create ethers provider and signer from the connected wallet
+      const ethersProvider = new ethers.BrowserProvider(provider);
+      const signer = await ethersProvider.getSigner();
       
       const contract = new ethers.Contract(
         GAME_LICENSING_CONFIG.contractAddress,
@@ -61,7 +88,7 @@ export default function LicensePurchaseModal({
       
       toast({
         title: 'Awaiting wallet confirmation...',
-        description: 'Please approve the transaction in your wallet',
+        description: 'Check your Keplr wallet to approve the transaction',
       });
 
       const tx = await contract.purchaseLicense(gameId, {
@@ -70,10 +97,10 @@ export default function LicensePurchaseModal({
 
       toast({
         title: 'Processing payment...',
-        description: 'Your transaction is being processed',
+        description: 'Your transaction is being processed on Saga',
       });
 
-      await tx.wait();
+      const receipt = await tx.wait();
 
       toast({
         title: 'License purchased!',
@@ -85,18 +112,17 @@ export default function LicensePurchaseModal({
     } catch (err) {
       console.error('Purchase failed:', err);
       
-      // Handle user rejection
       if (err instanceof Error) {
         if (err.message.includes('user rejected') || err.message.includes('User denied')) {
           toast({
             title: 'Transaction cancelled',
-            description: 'You cancelled the transaction',
+            description: 'You cancelled the transaction in your wallet',
             variant: 'destructive',
           });
         } else {
           toast({
             title: 'Purchase failed',
-            description: err.message,
+            description: err.message.substring(0, 100),
             variant: 'destructive',
           });
         }
