@@ -1,7 +1,9 @@
 import { useLocation } from 'wouter';
-import { Sparkles } from 'lucide-react';
+import { Sparkles, LogOut } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { usePrivy } from '@privy-io/react-auth';
 import AuthGuard from '@/components/AuthGuard';
 import { Lens } from '@/types/lens';
 
@@ -35,6 +37,7 @@ export const mockLenses: Lens[] = [
 
 function MarketplaceContent() {
   const [, setLocation] = useLocation();
+  const { logout } = usePrivy();
 
   const handleLensClick = (lens: Lens) => {
     setLocation(`/camera/${lens.id}`);
@@ -43,11 +46,19 @@ function MarketplaceContent() {
   return (
     <div className="min-h-screen bg-background">
       <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="container flex h-16 items-center gap-4 px-4">
+        <div className="container flex h-16 items-center justify-between gap-4 px-4">
           <div className="flex items-center gap-2">
             <Sparkles className="w-6 h-6 text-primary" />
             <h1 className="text-xl font-semibold">AR Lens Collection</h1>
           </div>
+          <Button
+            onClick={logout}
+            size="icon"
+            variant="ghost"
+            data-testid="button-logout"
+          >
+            <LogOut className="w-5 h-5" />
+          </Button>
         </div>
       </header>
 
