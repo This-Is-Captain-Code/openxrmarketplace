@@ -68,9 +68,9 @@ export default function AuthGuard({ children }: AuthGuardProps) {
       <div className="fixed inset-0 bg-black flex flex-col items-center justify-center p-6">
         <div className="flex flex-col items-center gap-6 max-w-md text-center">
           <div className="text-white text-6xl mb-4" style={{ fontFamily: 'Lexlox, sans-serif' }}>
-            o7
+            NeoSaga
           </div>
-          <h1 className="text-white text-2xl font-bold">Welcome to o7.xr</h1>
+          <h1 className="text-white text-2xl font-bold">Welcome to NeoSaga</h1>
           <p className="text-white/70 text-sm">
             Sign in to capture and share AR photos with your friends
           </p>

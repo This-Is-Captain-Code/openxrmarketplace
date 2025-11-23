@@ -170,7 +170,7 @@ function CameraViewContent() {
               <ArrowLeft className="w-5 h-5" />
             </Button>
             <div className="text-white text-3xl font-bold" style={{ fontFamily: 'Lexlox, sans-serif', color: '#ffffff' }}>
-              o7
+              NeoSaga
             </div>
           </div>
           <div className="flex items-center gap-3">

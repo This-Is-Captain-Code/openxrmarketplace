@@ -1,8 +1,8 @@
-# o7.xr - AR Camera Experience
+# NeoSaga - AR Camera Experience
 
 ## Overview
 
-o7.xr is a social camera application that integrates Snap Camera Kit to provide AR lens experiences. The application allows users to capture photos with AR filters, similar to popular social media camera features. Built with React and Express, it features a camera-first mobile interface with real-time lens preview, free AR lens selection, and user authentication via Privy.
+NeoSaga is a social camera application that integrates Snap Camera Kit to provide AR lens experiences. The application allows users to capture photos with AR filters, similar to popular social media camera features. Built with React and Express, it features a camera-first mobile interface with real-time lens preview, free AR lens selection, and user authentication via Privy.
 
 ## User Preferences
 

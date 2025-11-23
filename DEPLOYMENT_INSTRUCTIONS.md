@@ -127,7 +127,7 @@ Replace the last `X` with game ID (1-12 in hex: 1=01, 2=02, etc.)
 ## After Deployment
 
 Once all games are deployed:
-1. Refresh the o7.xr application
+1. Refresh the NeoSaga application
 2. Each lens should now show "Purchase" if not owned
 3. Each lens can be purchased individually for 2324 XRT
 4. Total cost to unlock all 12 lenses: 27,888 XRT (12 × 2324)

@@ -23,7 +23,7 @@ export default function SetupGuide({ onDismiss }: SetupGuideProps) {
 
         <div className="space-y-4 text-sm text-muted-foreground">
           <p>
-            To enable AR lenses in o7.xr, you need to configure your Snap Camera Kit credentials.
+            To enable AR lenses in NeoSaga, you need to configure your Snap Camera Kit credentials.
             Follow these steps to get started:
           </p>
 

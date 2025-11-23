@@ -1,4 +1,4 @@
-# Design Guidelines: o7.xr (oseven.xyz)
+# Design Guidelines: NeoSaga
 
 ## Design Approach
 

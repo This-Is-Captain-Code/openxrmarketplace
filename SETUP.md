@@ -1,8 +1,8 @@
-# o7.xr Setup Guide
+# NeoSaga Setup Guide
 
 ## Snap Camera Kit Configuration
 
-To enable AR lenses in o7.xr, you need to configure your Snap Camera Kit credentials.
+To enable AR lenses in NeoSaga, you need to configure your Snap Camera Kit credentials.
 
 ### Prerequisites
 
