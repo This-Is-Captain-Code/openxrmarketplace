@@ -68,7 +68,7 @@ function LensCard({
             data-testid={`button-lens-${lens.id}`}
             disabled={loading}
           >
-            {loading ? 'Checking...' : hasLicense ? 'Use Filter' : 'Purchase'}
+            {loading ? 'Checking...' : hasLicense ? 'Play Game' : 'Purchase'}
           </Button>
         </div>
       </div>
@@ -83,9 +83,9 @@ function LensCard({
           {lens.displayName}
         </h3>
 
-        {/* Filter Type with Badge */}
+        {/* Game Type with Badge */}
         <div className="flex items-center justify-between">
-          <span className="text-sm text-gray-400">AR Filter</span>
+          <span className="text-sm text-gray-400">AR Game</span>
           <div className="h-8 w-8 rounded-full border-2 flex items-center justify-center" style={{ borderColor: hasLicense ? '#C1FF72' : '#4b5563' }}>
             {hasLicense ? (
               <Check className="w-4 h-4" style={{ color: '#C1FF72' }} />

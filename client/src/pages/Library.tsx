@@ -163,7 +163,7 @@ function LibraryContent() {
                       style={{ backgroundColor: '#C1FF72', color: '#000' }}
                       data-testid={`button-library-use-${lens.id}`}
                     >
-                      Use Filter
+                      Play Game
                     </Button>
                   </div>
                 </div>
