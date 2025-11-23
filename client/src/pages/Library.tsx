@@ -119,28 +119,25 @@ function LibraryContent() {
 
         {checkComplete && totalOwned === 0 ? (
           <div className="flex flex-col items-center justify-center py-16">
-            <p className="text-gray-400 text-lg mb-6">No items owned yet</p>
+            <p className="text-gray-400 text-lg mb-6">No games owned yet</p>
             <Button
               onClick={() => setLocation('/')}
               style={{ backgroundColor: '#C1FF72', color: '#000' }}
               className="font-semibold"
             >
-              Browse Marketplace
+              Browse Games
             </Button>
           </div>
         ) : (
-          <>
-            {/* AR Filters Section */}
-            {ownedLenses.length > 0 && (
-              <section>
-                <div className="mb-6">
-                  <h2 className="text-2xl font-bold text-white">AR Filters</h2>
-                  <p className="text-muted-foreground text-sm">
-                    {ownedLenses.length} filter{ownedLenses.length !== 1 ? 's' : ''}
-                  </p>
-                </div>
-                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6">
-                  {ownedLenses.map((lens) => (
+          <section>
+            <div className="mb-6">
+              <h2 className="text-2xl font-bold text-white">My Games</h2>
+              <p className="text-muted-foreground text-sm">
+                {totalOwned} game{totalOwned !== 1 ? 's' : ''}
+              </p>
+            </div>
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6">
+              {ownedLenses.map((lens) => (
               <div 
                 key={lens.id} 
                 className="group cursor-pointer bg-gray-900/50 rounded-2xl overflow-hidden border border-gray-800 hover:border-gray-700 transition-all duration-200 hover:scale-105"
@@ -181,9 +178,9 @@ function LibraryContent() {
                     {lens.displayName}
                   </h3>
 
-                  {/* Filter Type with Badge */}
+                  {/* Game Type with Badge */}
                   <div className="flex items-center justify-between">
-                    <span className="text-sm text-gray-400">AR Filter</span>
+                    <span className="text-sm text-gray-400">AR Game</span>
                     <div className="h-8 w-8 rounded-full border-2 flex items-center justify-center" style={{ borderColor: '#C1FF72' }}>
                       <Check className="w-4 h-4" style={{ color: '#C1FF72' }} />
                     </div>
@@ -204,22 +201,8 @@ function LibraryContent() {
                   </div>
                 </div>
               </div>
-                  ))}
-                </div>
-              </section>
-            )}
-
-            {/* Games Section */}
-            {ownedGames.length > 0 && (
-              <section>
-                <div className="mb-6">
-                  <h2 className="text-2xl font-bold text-white">Games</h2>
-                  <p className="text-muted-foreground text-sm">
-                    {ownedGames.length} game{ownedGames.length !== 1 ? 's' : ''}
-                  </p>
-                </div>
-                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6">
-                  {ownedGames.map((game) => (
+              ))}
+              {ownedGames.map((game) => (
                     <div 
                       key={game.id} 
                       className="group cursor-pointer bg-gray-900/50 rounded-2xl overflow-hidden border border-gray-800 hover:border-gray-700 transition-all duration-200 hover:scale-105"
@@ -283,11 +266,9 @@ function LibraryContent() {
                         </div>
                       </div>
                     </div>
-                  ))}
-                </div>
-              </section>
-            )}
-          </>
+              ))}
+            </div>
+          </section>
         )}
       </main>
     </div>

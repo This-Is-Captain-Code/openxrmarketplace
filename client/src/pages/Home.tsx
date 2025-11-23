@@ -270,13 +270,13 @@ function HomeContent() {
         </div>
       </header>
 
-      <main className="container px-4 py-8 space-y-12">
-        {/* AR Filters Section */}
+      <main className="container px-4 py-8">
+        {/* Games Section - includes all AR lenses and WebXR games */}
         <section>
           <div className="mb-8">
-            <h1 className="text-3xl font-bold mb-2 text-white">AR Filters</h1>
+            <h1 className="text-3xl font-bold mb-2 text-white">Games</h1>
             <p className="text-muted-foreground">
-              Unlock stunning AR effects with individual purchases
+              Unlock immersive AR experiences and WebXR games
             </p>
           </div>
 
@@ -284,19 +284,6 @@ function HomeContent() {
             {mockLenses.map((lens) => (
               <LensCard key={lens.id} lens={lens} onPurchase={handlePurchase} refreshKey={refreshKey} />
             ))}
-          </div>
-        </section>
-
-        {/* Games Section */}
-        <section>
-          <div className="mb-8">
-            <h1 className="text-3xl font-bold mb-2 text-white">Games</h1>
-            <p className="text-muted-foreground">
-              Experience immersive WebXR gaming
-            </p>
-          </div>
-
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6">
             {mockGames.map((game) => (
               <GameCard key={game.id} game={game} onPurchase={handlePurchase} refreshKey={refreshKey} />
             ))}
