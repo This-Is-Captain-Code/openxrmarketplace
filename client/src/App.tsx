@@ -49,19 +49,6 @@ function App() {
             createOnLogin: "users-without-wallets",
           },
         },
-        chains: [
-          {
-            chainId: SAGA_CHAIN_CONFIG.networkId,
-            name: "Saga - openxr",
-            rpcUrl: SAGA_CHAIN_CONFIG.rpcUrl,
-            nativeCurrency: {
-              name: "XRT",
-              symbol: "XRT",
-              decimals: 18,
-            },
-            blockExplorerUrl: SAGA_CHAIN_CONFIG.blockExplorer,
-          },
-        ],
       }}
     >
       <QueryClientProvider client={queryClient}>

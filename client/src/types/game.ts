@@ -5,6 +5,6 @@ export interface Game {
   coverImage: string;
   price: number;
   url: string;
-  mobileOnly: boolean;
+  isMobileOnly: boolean;
   description?: string;
 }

@@ -8,7 +8,7 @@ import { SAGA_CHAIN_CONFIG, GAME_LICENSING_CONFIG } from '@/lib/sagaChain';
 import gameABI from '@/lib/gameABI.json';
 import { Loader2 } from 'lucide-react';
 import { mockLenses } from '@/pages/Marketplace';
-import { mockGames, getGameId } from '@/pages/Games';
+import { mockGames, getGameId } from '@/lib/gameData';
 
 // Helper function to convert ID to numeric gameId - MUST MATCH useLicense
 // Lenses: gameId 1-12, Games: gameId 13+

@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { usePrivy } from '@privy-io/react-auth';
 import AuthGuard from '@/components/AuthGuard';
 import { useLicense } from '@/hooks/useLicense';
-import { mockGames } from '@/pages/Games';
+import { mockGames } from '@/lib/gameData';
 import LicensePurchaseModal from '@/components/LicensePurchaseModal';
 import { useToast } from '@/hooks/use-toast';
 
@@ -43,7 +43,7 @@ function GamePlayerContent() {
   }
 
   // Mobile-only restriction
-  if (game.mobileOnly && !isMobile) {
+  if (game.isMobileOnly && !isMobile) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="max-w-md mx-auto px-4 text-center space-y-6">

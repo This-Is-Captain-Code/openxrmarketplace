@@ -1,5 +1,5 @@
 import { useLocation } from 'wouter';
-import { Gamepad2, LogOut } from 'lucide-react';
+import { Gamepad2, LogOut, Check, Smartphone } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { usePrivy } from '@privy-io/react-auth';
 import AuthGuard from '@/components/AuthGuard';
@@ -7,31 +7,7 @@ import { useState, useEffect } from 'react';
 import LicensePurchaseModal from '@/components/LicensePurchaseModal';
 import { Game } from '@/types/game';
 import { useLicense } from '@/hooks/useLicense';
-
-import gameCover from '@assets/stock_images/futuristic_gaming_ne_ddadd80d.jpg';
-
-// Game ID mapping: Games start from gameId 13 (lenses are 1-12)
-export const mockGames: Game[] = [
-  { 
-    id: 'game-ueeaauueeaa',
-    name: 'UEEAAUUEEAA',
-    displayName: 'UEEAAUUEEAA',
-    coverImage: gameCover,
-    price: 4540,
-    url: 'https://alivestudios.8thwall.app/neworldeffects/',
-    mobileOnly: true,
-    description: 'Immersive AR gaming experience'
-  },
-];
-
-// Helper to get game ID for blockchain (starts at 13)
-export const getGameId = (gameId: string): number => {
-  const index = mockGames.findIndex(game => game.id === gameId);
-  if (index === -1) {
-    throw new Error(`Invalid game ID: ${gameId}. Game not found in catalog.`);
-  }
-  return 13 + index; // Games start at ID 13
-};
+import { mockGames } from '@/lib/gameData';
 
 // Component to handle individual game card with license checking
 function GameCard({ 
@@ -60,7 +36,7 @@ function GameCard({
     if (loading) return;
     
     // For mobile-only games, check device
-    if (game.mobileOnly && !isMobile) {
+    if (game.isMobileOnly && !isMobile) {
       return; // Don't do anything on desktop
     }
     
@@ -87,8 +63,9 @@ function GameCard({
         
         {/* Hover Overlay with Button */}
         <div className="absolute inset-0 bg-black/70 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center">
-          {game.mobileOnly && !isMobile ? (
+          {game.isMobileOnly && !isMobile ? (
             <div className="text-center px-4">
+              <Smartphone className="w-8 h-8 text-white mb-2 mx-auto" />
               <p className="text-white text-sm mb-2">Mobile Only</p>
               <p className="text-gray-300 text-xs">Open on your phone to play</p>
             </div>
@@ -121,13 +98,16 @@ function GameCard({
 
         {/* Game Type Badge */}
         <div className="flex items-center justify-between">
-          <span className="text-sm text-gray-400">
-            {game.mobileOnly ? 'Mobile AR Game' : 'AR Game'}
+          <span className="text-sm text-gray-400 flex items-center gap-1">
+            {game.isMobileOnly && <Smartphone className="w-4 h-4" />}
+            {game.isMobileOnly ? 'Mobile AR Game' : 'AR Game'}
           </span>
-          <div className="h-8 w-8 rounded-full border-2 border-gray-600 flex items-center justify-center" style={{ borderColor: hasLicense ? '#C1FF72' : '#4b5563' }}>
-            <span className="text-xs font-bold" style={{ color: hasLicense ? '#C1FF72' : '#9ca3af' }}>
-              {hasLicense ? '✓' : '🎮'}
-            </span>
+          <div className="h-8 w-8 rounded-full border-2 flex items-center justify-center" style={{ borderColor: hasLicense ? '#C1FF72' : '#4b5563' }}>
+            {hasLicense ? (
+              <Check className="w-4 h-4" style={{ color: '#C1FF72' }} />
+            ) : (
+              <Gamepad2 className="w-4 h-4" style={{ color: '#9ca3af' }} />
+            )}
           </div>
         </div>
 
@@ -137,9 +117,12 @@ function GameCard({
         {/* Price Section */}
         <div className="space-y-2">
           <span className="text-xs text-gray-500 uppercase tracking-widest font-semibold block">Price</span>
-          <span className="text-base font-bold" style={{ color: '#C1FF72' }}>
-            {hasLicense ? '✓ Owned' : `${game.price} XRT`}
-          </span>
+          <div className="flex items-center gap-2">
+            {hasLicense && <Check className="w-4 h-4" style={{ color: '#C1FF72' }} />}
+            <span className="text-base font-bold" style={{ color: '#C1FF72' }}>
+              {hasLicense ? 'Owned' : `${game.price} XRT`}
+            </span>
+          </div>
         </div>
       </div>
     </div>
